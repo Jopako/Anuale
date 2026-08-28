@@ -1,0 +1,1 @@
+export type DigitResult = "correct" | "present" | "absent";
