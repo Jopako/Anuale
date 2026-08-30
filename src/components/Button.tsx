@@ -1,11 +1,14 @@
 interface ButtonProps {
   children: React.ReactNode;
-  onClick: () => void;
+  disabled?: boolean;
 }
 
-export function Button({ children, onClick }: ButtonProps) {
+export function Button({
+  children,
+  disabled = false,
+}: ButtonProps) {
   return (
-    <button onClick={onClick}>
+    <button type="submit" disabled={disabled}>
       {children}
     </button>
   );

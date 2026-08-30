@@ -1,50 +1,112 @@
+import { useState } from "react";
+
 import { Button } from "./components/Button";
 import { CreateQuestion } from "./components/CreateQuestion";
-import type { Question } from "./types/question";
-import React, { useState } from "react";
-import { checkGuess } from "./utils/checkGuess";
+import { GuessRow } from "./components/GuessRow";
+
 import { checkDigits } from "./utils/checkDigits";
 
-function App() {
-  const [year, setYear] = useState("");
+import type { Question } from "./types/question";
+import type { Guess } from "./types/guess";
 
+
+
+function App() {
   const question: Question = {
-    clue: "Ano que nasceu o criado deste game.",
-    year: 2004,
+    clue: "A COVID-19 foi classificada como pandemia pela OMS.",
+    year: 2020,
   };
 
- function handleSubmit(event: React.SubmitEvent) {
+  const [ano, setAno] = useState("");
+  const [guesses, setGuesses] = useState<Guess[]>([]);
+  const [gameOver, setGameOver] = useState(false);
+  const [won, setWon] = useState(false);
 
-  const results = checkDigits(year, question.year);
+  function handleSubmit(event: React.SubmitEvent) {
+    event.preventDefault();
 
-console.log(results);
-  event.preventDefault();
+    if (ano === "") {
+      return;
+    }
 
-  const result = checkGuess(year,question.year)
+    if (gameOver) {
+      return;
+    }
 
-  console.log(result);
-}
+    const result = checkDigits(ano, question.year);
+
+    setGuesses((prevGuesses) => [
+      ...prevGuesses,
+      {
+        value: ano,
+        results: result,
+      },
+    ]);
+
+    const acertou = result.every(
+      (digit) => digit === "correct"
+    );
+
+    if (acertou) {
+      setWon(true);
+      setGameOver(true);
+    } else if (guesses.length === 5) {
+      setGameOver(true);
+    }
+
+    setAno("");
+  }
 
   return (
     <main>
+      <h1>Adivinhe o Ano</h1>
+
+      <p>Descubra em que ano isso aconteceu.</p>
+
+      <CreateQuestion question={question} />
+
       <form onSubmit={handleSubmit}>
         <input
           type="text"
-          value={year}
-          onChange={(event) => setYear(event.target.value)}
+          value={ano}
+          maxLength={4}
+          disabled={gameOver}
+          placeholder=""
+          onChange={(event) => {
+            const value = event.target.value;
+
+            if (/^\d*$/.test(value)) {
+              setAno(value);
+            }
+          }}
         />
 
-        <button type="submit">Enviar</button>
+        <Button disabled={gameOver}>
+          Enviar
+        </Button>
       </form>
-      <p>Ano digitado: {year}</p>
 
-      <h1>Adivinhe o Ano</h1>
+      <div className="guesses">
+        {guesses.map((guess, index) => (
+          <GuessRow
+            key={index}
+            guess={guess.value}
+            results={guess.results}
+          />
+        ))}
+      </div>
 
-      <p>Você consegue descobrir quando isso aconteceu?</p>
+      {gameOver && (
+        <div className="game-result">
+          {won ? (
+            <h2>Você acertou!</h2>
+          ) : (
+            <h2>Você perdeu!</h2>
+          )}
 
-      <Button onClick={() => console.log("Começar jogo")}>Jogar</Button>
-
-      <CreateQuestion question={question} />
+          <p>A resposta era {question.year}</p>
+        </div>
+      )}
     </main>
   );
 }
