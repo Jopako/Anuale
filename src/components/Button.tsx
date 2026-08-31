@@ -8,7 +8,11 @@ export function Button({
   disabled = false,
 }: ButtonProps) {
   return (
-    <button type="submit" disabled={disabled}>
+    <button
+      type="submit"
+      className="submit-button"
+      disabled={disabled}
+    >
       {children}
     </button>
   );

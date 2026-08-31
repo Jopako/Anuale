@@ -13,11 +13,9 @@ function App() {
   const [question, setQuestion] = useState<Question | null>(null);
 
   const [ano, setAno] = useState("");
-
   const [guesses, setGuesses] = useState<Guess[]>([]);
 
   const [gameOver, setGameOver] = useState(false);
-
   const [won, setWon] = useState(false);
 
   const [currentClue, setCurrentClue] = useState(0);
@@ -76,7 +74,9 @@ function App() {
     } else if (
       currentClue < currentQuestion.clues.length - 1
     ) {
-      setCurrentClue((prevClue) => prevClue + 1);
+      setCurrentClue(
+        (prevClue) => prevClue + 1
+      );
     } else {
       setGameOver(true);
     }
@@ -86,21 +86,31 @@ function App() {
 
   return (
     <main>
-      <h1>Adivinhe o Ano</h1>
+      <header className="header">
+        <h1>ANUALE</h1>
 
-      <p>Descubra em que ano isso aconteceu.</p>
+        <p>
+          Descubra em que ano isso aconteceu.
+        </p>
+      </header>
 
       <CreateQuestion
         clue={currentQuestion.clues[currentClue]}
+        clueNumber={currentClue + 1}
+        totalClues={currentQuestion.clues.length}
       />
 
-      <form onSubmit={handleSubmit}>
+      <form
+        className="game-form"
+        onSubmit={handleSubmit}
+      >
         <input
+          className="year-input"
           type="text"
           value={ano}
           maxLength={4}
           disabled={gameOver}
-          placeholder="YYYY"
+          placeholder="_ _ _ _"
           onChange={(event) => {
             const value = event.target.value;
 
@@ -111,7 +121,7 @@ function App() {
         />
 
         <Button disabled={gameOver}>
-          Enviar
+          ENVIAR
         </Button>
       </form>
 
@@ -130,11 +140,12 @@ function App() {
           {won ? (
             <h2>Você acertou!</h2>
           ) : (
-            <h2>Você perdeu!</h2>
+            <h2>Fim de jogo</h2>
           )}
 
           <p>
-            A resposta era {currentQuestion.year}
+            A resposta era{" "}
+            <strong>{currentQuestion.year}</strong>
           </p>
         </div>
       )}

@@ -5,32 +5,40 @@ interface GuessRowProps {
   results: DigitResult[];
 }
 
-export function GuessRow({ guess, results }: GuessRowProps) {
-  function getBackgroundColor(result: DigitResult) {
-    if (result === "correct") {
-      return "#538d4e";
-    }
-
-    if (result === "present") {
-      return "#b59f3b";
-    }
-
-    return "#3a3a3c";
-  }
-
+export function GuessRow({
+  guess,
+  results,
+}: GuessRowProps) {
   return (
     <div className="guess-row">
-      {guess.split("").map((digit, index) => (
-        <div
-          className="digit"
-          key={index}
-          style={{
-            backgroundColor: getBackgroundColor(results[index]),
-          }}
-        >
-          {digit}
-        </div>
-      ))}
+      {Array.from({ length: 4 }, (_, index) => {
+        const digit = guess[index] ?? "";
+        const result = results[index] ?? "absent";
+
+        return (
+          <div
+            key={index}
+            className="digit-wrapper"
+            style={
+              {
+                "--delay": `${index * 300}ms`,
+              } as React.CSSProperties
+            }
+          >
+            <div className="digit-flip">
+              <div className="digit-face digit-front">
+                {digit}
+              </div>
+
+              <div
+                className={`digit-face digit-back ${result}`}
+              >
+                {digit}
+              </div>
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
-}
+}                                                               
