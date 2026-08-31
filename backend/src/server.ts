@@ -1,6 +1,9 @@
+import "dotenv/config";
+
 import Fastify from "fastify";
 import cors from "@fastify/cors";
 
+import { db } from "./db/index.js";
 import { dailyRoutes } from "./routes/daily.js";
 
 const app = Fastify({
@@ -19,11 +22,21 @@ app.get("/", async () => {
   };
 });
 
-app.listen({ port: 3000 }, (error, address) => {
-  if (error) {
+async function start() {
+  try {
+    await db.execute("SELECT 1");
+
+    console.log("PostgreSQL conectado!");
+
+    await app.listen({
+      port: 3000,
+    });
+
+    console.log("Servidor rodando em http://localhost:3000");
+  } catch (error) {
     app.log.error(error);
     process.exit(1);
   }
+}
 
-  console.log(`Servidor rodando em ${address}`);
-});
+start();
