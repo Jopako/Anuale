@@ -1,9 +1,9 @@
 import type { DigitResult } from "../types/digitResult";
 
-export function checkDigits(guess: string, answer: number) {
+export function checkDigits(guess: string, answer: string) {
 
   const guessDigits = guess.split("");
-  const answerDigits = String(answer).split("");
+  const answerDigits = answer.split("");
 
   const remainingAnswer = [...answerDigits];
 

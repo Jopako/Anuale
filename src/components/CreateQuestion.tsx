@@ -1,13 +1,11 @@
-import type { Question } from "../types/question";
-
 interface CreateQuestionProps {
-  question: Question;
+  clue: string;
 }
 
-export const CreateQuestion = ({ question }: CreateQuestionProps) => {
+export const CreateQuestion = ({ clue }: CreateQuestionProps) => {
   return (
-    <div>
-      <h1>Dica: {question.clue}</h1>
+    <div className="question">
+      <h2>{clue}</h2>
     </div>
   );
 };

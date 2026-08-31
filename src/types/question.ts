@@ -1,5 +1,5 @@
-export interface Question
-{
-    clue: string;
-    year: number;
+export interface Question {
+  id: number;
+  year: string;
+  clues: string[];
 }

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Button } from "./components/Button";
 import { CreateQuestion } from "./components/CreateQuestion";
@@ -6,21 +6,41 @@ import { GuessRow } from "./components/GuessRow";
 
 import { checkDigits } from "./utils/checkDigits";
 
-import type { Question } from "./types/question";
 import type { Guess } from "./types/guess";
-
-
+import type { Question } from "./types/question";
 
 function App() {
-  const question: Question = {
-    clue: "A COVID-19 foi classificada como pandemia pela OMS.",
-    year: 2020,
-  };
+  const [question, setQuestion] = useState<Question | null>(null);
 
   const [ano, setAno] = useState("");
+
   const [guesses, setGuesses] = useState<Guess[]>([]);
+
   const [gameOver, setGameOver] = useState(false);
+
   const [won, setWon] = useState(false);
+
+  const [currentClue, setCurrentClue] = useState(0);
+
+  useEffect(() => {
+    async function fetchDailyQuestion() {
+      const response = await fetch(
+        "http://localhost:3000/api/daily"
+      );
+
+      const data: Question = await response.json();
+
+      setQuestion(data);
+    }
+
+    fetchDailyQuestion();
+  }, []);
+
+  if (!question) {
+    return <p>Carregando...</p>;
+  }
+
+  const currentQuestion = question;
 
   function handleSubmit(event: React.SubmitEvent) {
     event.preventDefault();
@@ -33,7 +53,10 @@ function App() {
       return;
     }
 
-    const result = checkDigits(ano, question.year);
+    const result = checkDigits(
+      ano,
+      currentQuestion.year
+    );
 
     setGuesses((prevGuesses) => [
       ...prevGuesses,
@@ -50,7 +73,11 @@ function App() {
     if (acertou) {
       setWon(true);
       setGameOver(true);
-    } else if (guesses.length === 5) {
+    } else if (
+      currentClue < currentQuestion.clues.length - 1
+    ) {
+      setCurrentClue((prevClue) => prevClue + 1);
+    } else {
       setGameOver(true);
     }
 
@@ -63,7 +90,9 @@ function App() {
 
       <p>Descubra em que ano isso aconteceu.</p>
 
-      <CreateQuestion question={question} />
+      <CreateQuestion
+        clue={currentQuestion.clues[currentClue]}
+      />
 
       <form onSubmit={handleSubmit}>
         <input
@@ -71,7 +100,7 @@ function App() {
           value={ano}
           maxLength={4}
           disabled={gameOver}
-          placeholder=""
+          placeholder="YYYY"
           onChange={(event) => {
             const value = event.target.value;
 
@@ -104,7 +133,9 @@ function App() {
             <h2>Você perdeu!</h2>
           )}
 
-          <p>A resposta era {question.year}</p>
+          <p>
+            A resposta era {currentQuestion.year}
+          </p>
         </div>
       )}
     </main>
