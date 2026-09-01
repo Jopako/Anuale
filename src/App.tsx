@@ -1,6 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
-import { Button } from "./components/Button";
 import { CreateQuestion } from "./components/CreateQuestion";
 import { GuessRow } from "./components/GuessRow";
 
@@ -20,19 +19,88 @@ function App() {
 
   const [currentClue, setCurrentClue] = useState(0);
 
+  const [placeholderText, setPlaceholderText] = useState("");
+  const [jaDigitou, setJaDigitou] = useState(false);
+
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (gameOver || jaDigitou) {
+      return;
+    }
+
+    const palavras = ["1929", "1500", "2000", "1989"];
+
+    let palavraIndex = 0;
+    let caractereIndex = 0;
+    let apagando = false;
+
+    let timeoutId: number;
+
+    function efeitoDigitacao() {
+      const palavraAtual = palavras[palavraIndex];
+
+      if (!apagando) {
+        setPlaceholderText(palavraAtual.substring(0, caractereIndex + 1));
+
+        caractereIndex++;
+
+        if (caractereIndex === palavraAtual.length) {
+          apagando = true;
+
+          timeoutId = window.setTimeout(efeitoDigitacao, 1200);
+        } else {
+          timeoutId = window.setTimeout(efeitoDigitacao, 180);
+        }
+      } else {
+        setPlaceholderText(palavraAtual.substring(0, caractereIndex - 1));
+
+        caractereIndex--;
+
+        if (caractereIndex === 0) {
+          apagando = false;
+
+          palavraIndex = (palavraIndex + 1) % palavras.length;
+
+          timeoutId = window.setTimeout(efeitoDigitacao, 500);
+        } else {
+          timeoutId = window.setTimeout(efeitoDigitacao, 50);
+        }
+      }
+    }
+
+    timeoutId = window.setTimeout(efeitoDigitacao, 500);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [gameOver, jaDigitou]);
+
   useEffect(() => {
     async function fetchDailyQuestion() {
-      const response = await fetch(
-        "http://localhost:3000/api/daily"
-      );
+      try {
+        const response = await fetch("http://localhost:3000/api/daily");
 
-      const data: Question = await response.json();
+        if (!response.ok) {
+          throw new Error("Erro ao buscar o desafio do dia.");
+        }
 
-      setQuestion(data);
+        const data: Question = await response.json();
+
+        setQuestion(data);
+      } catch (error) {
+        console.error("Erro ao buscar pergunta:", error);
+      }
     }
 
     fetchDailyQuestion();
   }, []);
+
+  useEffect(() => {
+    if (!gameOver) {
+      inputRef.current?.focus();
+    }
+  }, [gameOver, guesses]);
 
   if (!question) {
     return <p>Carregando...</p>;
@@ -40,21 +108,12 @@ function App() {
 
   const currentQuestion = question;
 
-  function handleSubmit(event: React.SubmitEvent) {
-    event.preventDefault();
-
-    if (ano === "") {
+  function submitGuess() {
+    if (ano === "" || gameOver) {
       return;
     }
 
-    if (gameOver) {
-      return;
-    }
-
-    const result = checkDigits(
-      ano,
-      currentQuestion.year
-    );
+    const result = checkDigits(ano, currentQuestion.year);
 
     setGuesses((prevGuesses) => [
       ...prevGuesses,
@@ -64,19 +123,13 @@ function App() {
       },
     ]);
 
-    const acertou = result.every(
-      (digit) => digit === "correct"
-    );
+    const acertou = result.every((digit) => digit === "correct");
 
     if (acertou) {
       setWon(true);
       setGameOver(true);
-    } else if (
-      currentClue < currentQuestion.clues.length - 1
-    ) {
-      setCurrentClue(
-        (prevClue) => prevClue + 1
-      );
+    } else if (currentClue < currentQuestion.clues.length - 1) {
+      setCurrentClue((prevClue) => prevClue + 1);
     } else {
       setGameOver(true);
     }
@@ -84,14 +137,33 @@ function App() {
     setAno("");
   }
 
+  function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
+    if (event.key === "Enter") {
+      event.preventDefault();
+
+      submitGuess();
+    }
+  }
+
+  function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const value = event.target.value;
+
+    if (/^\d*$/.test(value)) {
+      setAno(value);
+
+      if (value.length > 0) {
+        setJaDigitou(true);
+        setPlaceholderText("");
+      }
+    }
+  }
+
   return (
     <main>
       <header className="header">
         <h1>ANUALE</h1>
 
-        <p>
-          Descubra em que ano isso aconteceu.
-        </p>
+        <p>Descubra em que ano isso aconteceu.</p>
       </header>
 
       <CreateQuestion
@@ -100,52 +172,76 @@ function App() {
         totalClues={currentQuestion.clues.length}
       />
 
-      <form
-        className="game-form"
-        onSubmit={handleSubmit}
-      >
-        <input
-          className="year-input"
-          type="text"
-          value={ano}
-          maxLength={4}
-          disabled={gameOver}
-          placeholder="_ _ _ _"
-          onChange={(event) => {
-            const value = event.target.value;
-
-            if (/^\d*$/.test(value)) {
-              setAno(value);
-            }
-          }}
-        />
-
-        <Button disabled={gameOver}>
-          ENVIAR
-        </Button>
-      </form>
-
-      <div className="guesses">
+      <div className="game-board">
         {guesses.map((guess, index) => (
-          <GuessRow
-            key={index}
-            guess={guess.value}
-            results={guess.results}
-          />
+          <GuessRow key={index} guess={guess.value} results={guess.results} />
         ))}
+
+        {!gameOver && (
+          <div
+            className="guess-row input-row"
+            onClick={() => inputRef.current?.focus()}
+          >
+            {Array.from({ length: 4 }, (_, index) => {
+              const digit = ano[index];
+              const placeholderDigit = placeholderText[index];
+
+              return (
+                <div
+                  key={index}
+                  className={`input-digit ${
+                    digit
+                      ? "filled"
+                      : placeholderDigit
+                        ? "placeholder-digit"
+                        : ""
+                  }`}
+                >
+                  {digit ?? placeholderDigit ?? ""}
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {Array.from(
+          {
+            length: Math.max(
+              0,
+              currentQuestion.clues.length -
+                guesses.length -
+                (gameOver ? 0 : 1),
+            ),
+          },
+          (_, index) => (
+            <div key={`empty-${index}`} className="guess-row">
+              {Array.from({ length: 4 }, (_, digitIndex) => (
+                <div key={digitIndex} className="empty-digit" />
+              ))}
+            </div>
+          ),
+        )}
       </div>
+
+      <input
+        ref={inputRef}
+        className="hidden-input"
+        type="text"
+        value={ano}
+        maxLength={4}
+        disabled={gameOver}
+        autoComplete="off"
+        inputMode="numeric"
+        onChange={handleInputChange}
+        onKeyDown={handleKeyDown}
+      />
 
       {gameOver && (
         <div className="game-result">
-          {won ? (
-            <h2>Você acertou!</h2>
-          ) : (
-            <h2>Fim de jogo</h2>
-          )}
+          {won ? <h2>Você acertou!</h2> : <h2>Fim de jogo</h2>}
 
           <p>
-            A resposta era{" "}
-            <strong>{currentQuestion.year}</strong>
+            A resposta era <strong>{currentQuestion.year}</strong>
           </p>
         </div>
       )}
