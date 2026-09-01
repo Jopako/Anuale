@@ -11,6 +11,8 @@ import {
 } from "../db/schema.js";
 
 export async function dailyRoutes(app: FastifyInstance) {
+
+
   app.get("/api/daily", async () => {
     const today = new Intl.DateTimeFormat("en-CA", {
       timeZone: "America/Sao_Paulo",
@@ -57,4 +59,46 @@ export async function dailyRoutes(app: FastifyInstance) {
         .map((clue) => clue.text),
     };
   });
+
+
+  app.get<{ Params: { id: string } }>(
+    "/api/:id",
+    async (request, reply) => {
+
+      const id = Number(request.params.id);
+
+      if (!Number.isInteger(id)) {
+        return reply.code(400).send({
+          error: "ID inválido.",
+        });
+      }
+
+      const questionResult = await db
+        .select()
+        .from(questions)
+        .where(eq(questions.id, id))
+        .limit(1);
+
+      if (questionResult.length === 0) {
+        return reply.code(404).send({
+          error: "Pergunta não encontrada.",
+        });
+      }
+
+      const question = questionResult[0];
+
+      const cluesResult = await db
+        .select()
+        .from(clues)
+        .where(eq(clues.questionId, question.id));
+
+      return {
+        id: question.id,
+        year: question.year,
+        clues: cluesResult
+          .sort((a, b) => a.position - b.position)
+          .map((clue) => clue.text),
+      };
+    }
+  );
 }

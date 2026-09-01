@@ -27,7 +27,6 @@ input {
 }
 
 
-
 main {
   width: min(100%, 520px);
   min-height: 100vh;
@@ -103,14 +102,13 @@ main {
 }
 
 
+
 .game-board {
   width: 100%;
 
   display: flex;
   flex-direction: column;
   align-items: center;
-
-  
 
   gap: 4px;
 }
@@ -122,8 +120,9 @@ main {
 
 
 .input-row {
-  cursor: text;
+  cursor: pointer;
 }
+
 
 .input-digit {
   width: 90px;
@@ -145,7 +144,8 @@ main {
   transition:
     border-color 0.15s ease,
     background 0.15s ease,
-    transform 0.1s ease;
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .input-digit.filled {
@@ -154,6 +154,17 @@ main {
 
   transform: scale(1.02);
 }
+
+
+.selected-digit {
+  border-color: #6f6f78;
+  background: #18181c;
+
+  transform: translateY(-4px);
+
+  box-shadow: 0 4px 0 #2e2e35;
+}
+
 
 
 .hidden-input {
@@ -180,7 +191,6 @@ main {
   background: #0f0f12;
 }
 
-
 .digit-wrapper {
   width: 90px;
   height: 90px;
@@ -189,7 +199,8 @@ main {
 
   opacity: 0;
 
-  animation: reveal-wrapper 0.5s ease forwards;
+  animation:
+    reveal-wrapper 0.5s ease forwards;
 
   animation-delay: var(--delay);
 }
@@ -202,7 +213,8 @@ main {
 
   transform-style: preserve-3d;
 
-  animation: flip-digit 0.5s ease forwards;
+  animation:
+    flip-digit 0.5s ease forwards;
 
   animation-delay: var(--delay);
 }
@@ -238,6 +250,7 @@ main {
 }
 
 
+
 .digit-back.correct {
   background: #1f4632;
   border-color: #2e6b4a;
@@ -254,6 +267,7 @@ main {
 
   color: #6a6a72;
 }
+
 
 
 @keyframes reveal-wrapper {
@@ -279,6 +293,7 @@ main {
     transform: rotateX(180deg);
   }
 }
+
 
 
 .game-result {
@@ -310,7 +325,15 @@ main {
 
 .game-result strong {
   color: #eaeaec;
+
   font-weight: 600;
+}
+
+
+
+.placeholder-digit {
+  color: #45454c;
+  opacity: 0.55;
 }
 
 

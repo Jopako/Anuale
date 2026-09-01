@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { CreateQuestion } from "./components/CreateQuestion";
 import { GuessRow } from "./components/GuessRow";
@@ -9,9 +9,19 @@ import type { Guess } from "./types/guess";
 import type { Question } from "./types/question";
 
 function App() {
-  const [question, setQuestion] = useState<Question | null>(null);
+  const [question, setQuestion] =
+    useState<Question | null>(null);
 
-  const [ano, setAno] = useState("");
+  const [digits, setDigits] = useState<string[]>([
+    "",
+    "",
+    "",
+    "",
+  ]);
+
+  const [currentPosition, setCurrentPosition] =
+    useState(0);
+
   const [guesses, setGuesses] = useState<Guess[]>([]);
 
   const [gameOver, setGameOver] = useState(false);
@@ -19,17 +29,24 @@ function App() {
 
   const [currentClue, setCurrentClue] = useState(0);
 
-  const [placeholderText, setPlaceholderText] = useState("");
-  const [jaDigitou, setJaDigitou] = useState(false);
+  const [placeholderText, setPlaceholderText] =
+    useState("");
 
-  const inputRef = useRef<HTMLInputElement>(null);
+  const [jaDigitou, setJaDigitou] =
+    useState(false);
+
 
   useEffect(() => {
     if (gameOver || jaDigitou) {
       return;
     }
 
-    const palavras = ["1929", "1500", "2000", "1989"];
+    const palavras = [
+      "1929",
+      "1500",
+      "2000",
+      "1989",
+    ];
 
     let palavraIndex = 0;
     let caractereIndex = 0;
@@ -38,82 +55,139 @@ function App() {
     let timeoutId: number;
 
     function efeitoDigitacao() {
-      const palavraAtual = palavras[palavraIndex];
+      const palavraAtual =
+        palavras[palavraIndex];
 
       if (!apagando) {
-        setPlaceholderText(palavraAtual.substring(0, caractereIndex + 1));
+        setPlaceholderText(
+          palavraAtual.substring(
+            0,
+            caractereIndex + 1
+          )
+        );
 
         caractereIndex++;
 
-        if (caractereIndex === palavraAtual.length) {
+        if (
+          caractereIndex ===
+          palavraAtual.length
+        ) {
           apagando = true;
 
-          timeoutId = window.setTimeout(efeitoDigitacao, 1200);
+          timeoutId = window.setTimeout(
+            efeitoDigitacao,
+            1200
+          );
         } else {
-          timeoutId = window.setTimeout(efeitoDigitacao, 180);
+          timeoutId = window.setTimeout(
+            efeitoDigitacao,
+            180
+          );
         }
       } else {
-        setPlaceholderText(palavraAtual.substring(0, caractereIndex - 1));
+        setPlaceholderText(
+          palavraAtual.substring(
+            0,
+            caractereIndex - 1
+          )
+        );
 
         caractereIndex--;
 
         if (caractereIndex === 0) {
           apagando = false;
 
-          palavraIndex = (palavraIndex + 1) % palavras.length;
+          palavraIndex =
+            (palavraIndex + 1) %
+            palavras.length;
 
-          timeoutId = window.setTimeout(efeitoDigitacao, 500);
+          timeoutId = window.setTimeout(
+            efeitoDigitacao,
+            500
+          );
         } else {
-          timeoutId = window.setTimeout(efeitoDigitacao, 50);
+          timeoutId = window.setTimeout(
+            efeitoDigitacao,
+            50
+          );
         }
       }
     }
 
-    timeoutId = window.setTimeout(efeitoDigitacao, 500);
+    timeoutId = window.setTimeout(
+      efeitoDigitacao,
+      500
+    );
 
     return () => {
       window.clearTimeout(timeoutId);
     };
   }, [gameOver, jaDigitou]);
 
+
   useEffect(() => {
-    async function fetchDailyQuestion() {
+    async function fetchQuestion() {
       try {
-        const response = await fetch("http://localhost:3000/api/daily");
+        const params =
+          new URLSearchParams(
+            window.location.search
+          );
+
+        const questionId =
+          params.get("question");
+
+        const isDevelopment =
+          import.meta.env.DEV;
+
+        const url =
+          isDevelopment && questionId
+            ? `http://localhost:3000/api/${questionId}`
+            : "http://localhost:3000/api/daily";
+
+        const response =
+          await fetch(url);
 
         if (!response.ok) {
-          throw new Error("Erro ao buscar o desafio do dia.");
+          throw new Error(
+            "Erro ao buscar o desafio."
+          );
         }
 
-        const data: Question = await response.json();
+        const data: Question =
+          await response.json();
 
         setQuestion(data);
       } catch (error) {
-        console.error("Erro ao buscar pergunta:", error);
+        console.error(
+          "Erro ao buscar pergunta:",
+          error
+        );
       }
     }
 
-    fetchDailyQuestion();
+    fetchQuestion();
   }, []);
 
-  useEffect(() => {
-    if (!gameOver) {
-      inputRef.current?.focus();
-    }
-  }, [gameOver, guesses]);
-
-  if (!question) {
-    return <p>Carregando...</p>;
-  }
-
-  const currentQuestion = question;
 
   function submitGuess() {
-    if (ano === "" || gameOver) {
+    if (gameOver) {
       return;
     }
 
-    const result = checkDigits(ano, currentQuestion.year);
+    if (
+      digits.some(
+        (digit) => digit === ""
+      )
+    ) {
+      return;
+    }
+
+    const ano = digits.join("");
+
+    const result = checkDigits(
+      ano,
+      currentQuestion.year
+    );
 
     setGuesses((prevGuesses) => [
       ...prevGuesses,
@@ -123,125 +197,326 @@ function App() {
       },
     ]);
 
-    const acertou = result.every((digit) => digit === "correct");
+    const acertou = result.every(
+      (digit) =>
+        digit === "correct"
+    );
 
     if (acertou) {
       setWon(true);
       setGameOver(true);
-    } else if (currentClue < currentQuestion.clues.length - 1) {
-      setCurrentClue((prevClue) => prevClue + 1);
+    } else if (
+      currentClue <
+      currentQuestion.clues.length - 1
+    ) {
+      setCurrentClue(
+        (prevClue) =>
+          prevClue + 1
+      );
     } else {
       setGameOver(true);
     }
 
-    setAno("");
+    setDigits([
+      "",
+      "",
+      "",
+      "",
+    ]);
+
+    setCurrentPosition(0);
   }
 
-  function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
-    if (event.key === "Enter") {
-      event.preventDefault();
 
-      submitGuess();
-    }
-  }
+  useEffect(() => {
+    function handleKeyDown(
+      event: KeyboardEvent
+    ) {
+      if (gameOver) {
+        return;
+      }
 
-  function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
-    const value = event.target.value;
 
-    if (/^\d*$/.test(value)) {
-      setAno(value);
+      if (/^\d$/.test(event.key)) {
+        event.preventDefault();
 
-      if (value.length > 0) {
+        setDigits((prevDigits) => {
+          const nextDigits = [
+            ...prevDigits,
+          ];
+
+          nextDigits[
+            currentPosition
+          ] = event.key;
+
+          return nextDigits;
+        });
+
         setJaDigitou(true);
         setPlaceholderText("");
+
+        if (currentPosition < 3) {
+          setCurrentPosition(
+            (prevPosition) =>
+              prevPosition + 1
+          );
+        }
+
+        return;
+      }
+
+
+      if (
+        event.key === "ArrowLeft"
+      ) {
+        event.preventDefault();
+
+        setCurrentPosition(
+          (prevPosition) =>
+            Math.max(
+              0,
+              prevPosition - 1
+            )
+        );
+
+        return;
+      }
+
+
+      if (
+        event.key === "ArrowRight"
+      ) {
+        event.preventDefault();
+
+        setCurrentPosition(
+          (prevPosition) =>
+            Math.min(
+              3,
+              prevPosition + 1
+            )
+        );
+
+        return;
+      }
+
+
+      if (
+        event.key === "Backspace"
+      ) {
+        event.preventDefault();
+
+        setDigits((prevDigits) => {
+          const nextDigits = [
+            ...prevDigits,
+          ];
+
+          if (
+            nextDigits[
+              currentPosition
+            ] !== ""
+          ) {
+            nextDigits[
+              currentPosition
+            ] = "";
+
+            return nextDigits;
+          }
+
+          if (currentPosition > 0) {
+            const previousPosition =
+              currentPosition - 1;
+
+            nextDigits[
+              previousPosition
+            ] = "";
+
+            setCurrentPosition(
+              previousPosition
+            );
+          }
+
+          return nextDigits;
+        });
+
+        return;
+      }
+
+
+      if (
+        event.key === "Enter"
+      ) {
+        event.preventDefault();
+
+        submitGuess();
+
+        return;
       }
     }
+
+    window.addEventListener(
+      "keydown",
+      handleKeyDown
+    );
+
+    return () => {
+      window.removeEventListener(
+        "keydown",
+        handleKeyDown
+      );
+    };
+  }, [
+    currentPosition,
+    gameOver,
+    digits,
+  ]);
+
+
+  if (!question) {
+    return <p>Carregando...</p>;
   }
+
+  const currentQuestion =
+    question;
+
 
   return (
     <main>
       <header className="header">
         <h1>ANUALE</h1>
 
-        <p>Descubra em que ano isso aconteceu.</p>
+        <p>
+          Descubra em que ano isso
+          aconteceu.
+        </p>
       </header>
 
       <CreateQuestion
-        clue={currentQuestion.clues[currentClue]}
-        clueNumber={currentClue + 1}
-        totalClues={currentQuestion.clues.length}
+        clue={
+          currentQuestion.clues[
+            currentClue
+          ]
+        }
+        clueNumber={
+          currentClue + 1
+        }
+        totalClues={
+          currentQuestion.clues.length
+        }
       />
 
       <div className="game-board">
-        {guesses.map((guess, index) => (
-          <GuessRow key={index} guess={guess.value} results={guess.results} />
-        ))}
+
+
+        {guesses.map(
+          (guess, index) => (
+            <GuessRow
+              key={index}
+              guess={guess.value}
+              results={guess.results}
+            />
+          )
+        )}
+
 
         {!gameOver && (
-          <div
-            className="guess-row input-row"
-            onClick={() => inputRef.current?.focus()}
-          >
-            {Array.from({ length: 4 }, (_, index) => {
-              const digit = ano[index];
-              const placeholderDigit = placeholderText[index];
+          <div className="guess-row input-row">
+            {Array.from(
+              { length: 4 },
+              (_, index) => {
+                const digit =
+                  digits[index];
 
-              return (
-                <div
-                  key={index}
-                  className={`input-digit ${
-                    digit
-                      ? "filled"
-                      : placeholderDigit
-                        ? "placeholder-digit"
+                const placeholderDigit =
+                  placeholderText[
+                    index
+                  ];
+
+                const isSelected =
+                  index ===
+                  currentPosition;
+
+                return (
+                  <div
+                    key={index}
+                    className={`input-digit ${
+                      digit
+                        ? "filled"
+                        : placeholderDigit
+                          ? "placeholder-digit"
+                          : ""
+                    } ${
+                      isSelected
+                        ? "selected-digit"
                         : ""
-                  }`}
-                >
-                  {digit ?? placeholderDigit ?? ""}
-                </div>
-              );
-            })}
+                    }`}
+                    onClick={() =>
+                      setCurrentPosition(
+                        index
+                      )
+                    }
+                  >
+                    {digit ||
+                      placeholderDigit ||
+                      ""}
+                  </div>
+                );
+              }
+            )}
           </div>
         )}
+
 
         {Array.from(
           {
             length: Math.max(
               0,
-              currentQuestion.clues.length -
+              currentQuestion
+                .clues.length -
                 guesses.length -
-                (gameOver ? 0 : 1),
+                (gameOver
+                  ? 0
+                  : 1)
             ),
           },
           (_, index) => (
-            <div key={`empty-${index}`} className="guess-row">
-              {Array.from({ length: 4 }, (_, digitIndex) => (
-                <div key={digitIndex} className="empty-digit" />
-              ))}
+            <div
+              key={`empty-${index}`}
+              className="guess-row"
+            >
+              {Array.from(
+                { length: 4 },
+                (_, digitIndex) => (
+                  <div
+                    key={digitIndex}
+                    className="empty-digit"
+                  />
+                )
+              )}
             </div>
-          ),
+          )
         )}
       </div>
 
-      <input
-        ref={inputRef}
-        className="hidden-input"
-        type="text"
-        value={ano}
-        maxLength={4}
-        disabled={gameOver}
-        autoComplete="off"
-        inputMode="numeric"
-        onChange={handleInputChange}
-        onKeyDown={handleKeyDown}
-      />
 
       {gameOver && (
         <div className="game-result">
-          {won ? <h2>Você acertou!</h2> : <h2>Fim de jogo</h2>}
+          {won ? (
+            <h2>
+              Você acertou!
+            </h2>
+          ) : (
+            <h2>
+              Fim de jogo
+            </h2>
+          )}
 
           <p>
-            A resposta era <strong>{currentQuestion.year}</strong>
+            A resposta era{" "}
+            <strong>
+              {
+                currentQuestion.year
+              }
+            </strong>
           </p>
         </div>
       )}
