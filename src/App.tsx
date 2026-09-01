@@ -32,13 +32,14 @@ function App() {
   const [placeholderText, setPlaceholderText] =
     useState("");
 
-  const [jaDigitou, setJaDigitou] = useState(false);
-
-  const inputRef =
-    useRef<HTMLInputElement>(null);
+  const [jaDigitou, setJaDigitou] =
+    useState(false);
 
   const [mobileInput, setMobileInput] =
     useState("");
+
+  const inputRef =
+    useRef<HTMLInputElement>(null);
 
   // ========================================
   // PLACEHOLDER ANIMADO
@@ -288,9 +289,13 @@ function App() {
     }
 
     setDigits((prevDigits) => {
-      const nextDigits = [...prevDigits];
+      const nextDigits = [
+        ...prevDigits,
+      ];
 
-      nextDigits[currentPosition] = digit;
+      nextDigits[
+        currentPosition
+      ] = digit;
 
       return nextDigits;
     });
@@ -319,6 +324,16 @@ function App() {
         return;
       }
 
+      // Quando o teclado virtual do celular
+      // está usando o input, deixamos o
+      // onChange cuidar da entrada.
+      if (
+        event.target instanceof
+          HTMLInputElement
+      ) {
+        return;
+      }
+
       // ======================================
       // NÚMERO
       // ======================================
@@ -340,8 +355,6 @@ function App() {
 
         setJaDigitou(true);
         setPlaceholderText("");
-
-        setMobileInput("");
 
         if (currentPosition < 3) {
           setCurrentPosition(
@@ -528,52 +541,68 @@ function App() {
         {/* INPUT ATUAL */}
 
         {!gameOver && (
-          <div className="guess-row input-row">
-            {Array.from(
-              { length: 4 },
-              (_, index) => {
-                const digit =
-                  digits[index];
+          <>
+            <div className="guess-row input-row">
+              {Array.from(
+                { length: 4 },
+                (_, index) => {
+                  const digit =
+                    digits[index];
 
-                const placeholderDigit =
-                  placeholderText[
-                    index
-                  ];
+                  const placeholderDigit =
+                    placeholderText[
+                      index
+                    ];
 
-                const isSelected =
-                  index ===
-                  currentPosition;
+                  const isSelected =
+                    index ===
+                    currentPosition;
 
-                return (
-                  <div
-                    key={index}
-                    className={`input-digit ${
-                      digit
-                        ? "filled"
-                        : placeholderDigit
-                          ? "placeholder-digit"
+                  return (
+                    <div
+                      key={index}
+                      className={`input-digit ${
+                        digit
+                          ? "filled"
+                          : placeholderDigit
+                            ? "placeholder-digit"
+                            : ""
+                      } ${
+                        isSelected
+                          ? "selected-digit"
                           : ""
-                    } ${
-                      isSelected
-                        ? "selected-digit"
-                        : ""
-                    }`}
-                    onClick={() => {
-                      setCurrentPosition(
-                        index
-                      );
+                      }`}
+                      onClick={() => {
+                        setCurrentPosition(
+                          index
+                        );
 
-                      inputRef.current?.focus();
-                    }}
-                  >
-                    {digit ||
-                      placeholderDigit ||
-                      ""}
-                  </div>
-                );
-              }
-            )}
-          </div>
+                        inputRef.current?.focus();
+                      }}
+                    >
+                      {digit ||
+                        placeholderDigit ||
+                        ""}
+                    </div>
+                  );
+                }
+              )}
+            </div>
+
+            {/* BOTÃO DE ENVIAR */}
+
+            <button
+              className="submit-guess-button"
+              type="button"
+              onClick={submitGuess}
+              disabled={digits.some(
+                (digit) =>
+                  digit === ""
+              )}
+            >
+              ✓
+            </button>
+          </>
         )}
 
         {/* CASAS VAZIAS */}
