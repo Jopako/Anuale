@@ -32,8 +32,7 @@ function App() {
   const [placeholderText, setPlaceholderText] =
     useState("");
 
-  const [jaDigitou, setJaDigitou] =
-    useState(false);
+  const [jaDigitou, setJaDigitou] = useState(false);
 
   const [mobileInput, setMobileInput] =
     useState("");
@@ -218,7 +217,6 @@ function App() {
       return;
     }
 
-    // Não permite enviar com casas vazias
     if (
       digits.some(
         (digit) => digit === ""
@@ -305,12 +303,8 @@ function App() {
 
     setJaDigitou(true);
     setPlaceholderText("");
-
-    // Limpa o input invisível
-    // para poder receber o próximo número
     setMobileInput("");
 
-    // Vai para a próxima posição
     if (currentPosition < 3) {
       setCurrentPosition(
         (prevPosition) =>
@@ -320,7 +314,7 @@ function App() {
   }
 
   // ========================================
-  // TECLADO DO INPUT INVISÍVEL
+  // TECLADO DO CELULAR
   // ========================================
 
   function handleInputKeyDown(
@@ -330,7 +324,7 @@ function App() {
       return;
     }
 
-    // Enter / Done do teclado virtual
+    // Enter / ação de enviar
     if (event.key === "Enter") {
       event.preventDefault();
 
@@ -382,7 +376,9 @@ function App() {
     }
 
     // Seta esquerda
-    if (event.key === "ArrowLeft") {
+    if (
+      event.key === "ArrowLeft"
+    ) {
       event.preventDefault();
 
       setCurrentPosition(
@@ -397,7 +393,9 @@ function App() {
     }
 
     // Seta direita
-    if (event.key === "ArrowRight") {
+    if (
+      event.key === "ArrowRight"
+    ) {
       event.preventDefault();
 
       setCurrentPosition(
@@ -422,8 +420,8 @@ function App() {
         return;
       }
 
-      // Se o input invisível estiver focado,
-      // ele próprio cuida do teclado.
+      // Quando o input invisível estiver focado,
+      // ele próprio controla o teclado.
       if (
         event.target instanceof
         HTMLInputElement
@@ -431,10 +429,7 @@ function App() {
         return;
       }
 
-      // ======================================
-      // NÚMERO
-      // ======================================
-
+      // Números
       if (/^\d$/.test(event.key)) {
         event.preventDefault();
 
@@ -463,13 +458,9 @@ function App() {
         return;
       }
 
-      // ======================================
-      // SETA ESQUERDA
-      // ======================================
-
+      // Seta esquerda
       if (
-        event.key ===
-        "ArrowLeft"
+        event.key === "ArrowLeft"
       ) {
         event.preventDefault();
 
@@ -484,13 +475,9 @@ function App() {
         return;
       }
 
-      // ======================================
-      // SETA DIREITA
-      // ======================================
-
+      // Seta direita
       if (
-        event.key ===
-        "ArrowRight"
+        event.key === "ArrowRight"
       ) {
         event.preventDefault();
 
@@ -505,10 +492,7 @@ function App() {
         return;
       }
 
-      // ======================================
-      // BACKSPACE
-      // ======================================
-
+      // Backspace
       if (
         event.key === "Backspace"
       ) {
@@ -550,10 +534,7 @@ function App() {
         return;
       }
 
-      // ======================================
-      // ENTER
-      // ======================================
-
+      // Enter
       if (
         event.key === "Enter"
       ) {
@@ -717,7 +698,7 @@ function App() {
         )}
       </div>
 
-      {/* INPUT INVISÍVEL PARA CELULAR */}
+      {/* INPUT INVISÍVEL PARA O CELULAR */}
 
       <form
         onSubmit={(event) => {
@@ -731,7 +712,7 @@ function App() {
           type="text"
           inputMode="numeric"
           pattern="[0-9]*"
-          enterKeyHint="done"
+          enterKeyHint="enter"
           autoComplete="off"
           value={mobileInput}
           onChange={
