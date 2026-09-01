@@ -328,49 +328,6 @@ main {
 }
 
 /* =========================
-   BOTÃO DE ENVIAR
-========================= */
-
-.submit-guess-button {
-  width: 100%;
-  max-width: 376px;
-  height: 52px;
-
-  margin-top: 12px;
-
-  border: 1px solid #33333a;
-  border-radius: 8px;
-
-  background: #121214;
-  color: #eaeaec;
-
-  font-size: 1.5rem;
-  font-weight: 600;
-
-  cursor: pointer;
-
-  transition:
-    background 0.15s ease,
-    border-color 0.15s ease,
-    transform 0.1s ease,
-    opacity 0.15s ease;
-}
-
-.submit-guess-button:hover:not(:disabled) {
-  background: #18181c;
-  border-color: #55555f;
-}
-
-.submit-guess-button:active:not(:disabled) {
-  transform: scale(0.98);
-}
-
-.submit-guess-button:disabled {
-  opacity: 0.35;
-  cursor: not-allowed;
-}
-
-/* =========================
    GAME RESULT
 ========================= */
 
@@ -443,12 +400,5 @@ main {
 
   .guess-row {
     gap: 6px;
-  }
-
-  .submit-guess-button {
-    max-width: 190px;
-    height: 48px;
-
-    margin-top: 10px;
   }
 }

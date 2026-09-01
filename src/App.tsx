@@ -218,6 +218,7 @@ function App() {
       return;
     }
 
+    // Não permite enviar com casas vazias
     if (
       digits.some(
         (digit) => digit === ""
@@ -279,9 +280,11 @@ function App() {
   function handleMobileInput(
     event: React.ChangeEvent<HTMLInputElement>
   ) {
-    const value = event.target.value;
+    const value =
+      event.target.value;
 
-    const digit = value.slice(-1);
+    const digit =
+      value.slice(-1);
 
     if (!/^\d$/.test(digit)) {
       setMobileInput("");
@@ -302,8 +305,12 @@ function App() {
 
     setJaDigitou(true);
     setPlaceholderText("");
+
+    // Limpa o input invisível
+    // para poder receber o próximo número
     setMobileInput("");
 
+    // Vai para a próxima posição
     if (currentPosition < 3) {
       setCurrentPosition(
         (prevPosition) =>
@@ -313,7 +320,98 @@ function App() {
   }
 
   // ========================================
-  // TECLADO
+  // TECLADO DO INPUT INVISÍVEL
+  // ========================================
+
+  function handleInputKeyDown(
+    event: React.KeyboardEvent<HTMLInputElement>
+  ) {
+    if (gameOver) {
+      return;
+    }
+
+    // Enter / Done do teclado virtual
+    if (event.key === "Enter") {
+      event.preventDefault();
+
+      submitGuess();
+
+      return;
+    }
+
+    // Backspace
+    if (event.key === "Backspace") {
+      event.preventDefault();
+
+      setDigits((prevDigits) => {
+        const nextDigits = [
+          ...prevDigits,
+        ];
+
+        if (
+          nextDigits[
+            currentPosition
+          ] !== ""
+        ) {
+          nextDigits[
+            currentPosition
+          ] = "";
+
+          return nextDigits;
+        }
+
+        if (currentPosition > 0) {
+          const previousPosition =
+            currentPosition - 1;
+
+          nextDigits[
+            previousPosition
+          ] = "";
+
+          setCurrentPosition(
+            previousPosition
+          );
+        }
+
+        return nextDigits;
+      });
+
+      setMobileInput("");
+
+      return;
+    }
+
+    // Seta esquerda
+    if (event.key === "ArrowLeft") {
+      event.preventDefault();
+
+      setCurrentPosition(
+        (prevPosition) =>
+          Math.max(
+            0,
+            prevPosition - 1
+          )
+      );
+
+      return;
+    }
+
+    // Seta direita
+    if (event.key === "ArrowRight") {
+      event.preventDefault();
+
+      setCurrentPosition(
+        (prevPosition) =>
+          Math.min(
+            3,
+            prevPosition + 1
+          )
+      );
+    }
+  }
+
+  // ========================================
+  // TECLADO FÍSICO
   // ========================================
 
   useEffect(() => {
@@ -324,12 +422,11 @@ function App() {
         return;
       }
 
-      // Quando o teclado virtual do celular
-      // está usando o input, deixamos o
-      // onChange cuidar da entrada.
+      // Se o input invisível estiver focado,
+      // ele próprio cuida do teclado.
       if (
         event.target instanceof
-          HTMLInputElement
+        HTMLInputElement
       ) {
         return;
       }
@@ -463,8 +560,6 @@ function App() {
         event.preventDefault();
 
         submitGuess();
-
-        return;
       }
     }
 
@@ -541,68 +636,52 @@ function App() {
         {/* INPUT ATUAL */}
 
         {!gameOver && (
-          <>
-            <div className="guess-row input-row">
-              {Array.from(
-                { length: 4 },
-                (_, index) => {
-                  const digit =
-                    digits[index];
+          <div className="guess-row input-row">
+            {Array.from(
+              { length: 4 },
+              (_, index) => {
+                const digit =
+                  digits[index];
 
-                  const placeholderDigit =
-                    placeholderText[
-                      index
-                    ];
+                const placeholderDigit =
+                  placeholderText[
+                    index
+                  ];
 
-                  const isSelected =
-                    index ===
-                    currentPosition;
+                const isSelected =
+                  index ===
+                  currentPosition;
 
-                  return (
-                    <div
-                      key={index}
-                      className={`input-digit ${
-                        digit
-                          ? "filled"
-                          : placeholderDigit
-                            ? "placeholder-digit"
-                            : ""
-                      } ${
-                        isSelected
-                          ? "selected-digit"
+                return (
+                  <div
+                    key={index}
+                    className={`input-digit ${
+                      digit
+                        ? "filled"
+                        : placeholderDigit
+                          ? "placeholder-digit"
                           : ""
-                      }`}
-                      onClick={() => {
-                        setCurrentPosition(
-                          index
-                        );
+                    } ${
+                      isSelected
+                        ? "selected-digit"
+                        : ""
+                    }`}
+                    onClick={() => {
+                      setCurrentPosition(
+                        index
+                      );
 
-                        inputRef.current?.focus();
-                      }}
-                    >
-                      {digit ||
-                        placeholderDigit ||
-                        ""}
-                    </div>
-                  );
-                }
-              )}
-            </div>
-
-            {/* BOTÃO DE ENVIAR */}
-
-            <button
-              className="submit-guess-button"
-              type="button"
-              onClick={submitGuess}
-              disabled={digits.some(
-                (digit) =>
-                  digit === ""
-              )}
-            >
-              ✓
-            </button>
-          </>
+                      inputRef.current?.focus();
+                    }}
+                  >
+                    {digit ||
+                      placeholderDigit ||
+                      ""}
+                  </div>
+                );
+              }
+            )}
+          </div>
         )}
 
         {/* CASAS VAZIAS */}
@@ -640,18 +719,30 @@ function App() {
 
       {/* INPUT INVISÍVEL PARA CELULAR */}
 
-      <input
-        ref={inputRef}
-        className="hidden-input"
-        type="text"
-        inputMode="numeric"
-        pattern="[0-9]*"
-        autoComplete="off"
-        value={mobileInput}
-        onChange={
-          handleMobileInput
-        }
-      />
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          submitGuess();
+        }}
+      >
+        <input
+          ref={inputRef}
+          className="hidden-input"
+          type="text"
+          inputMode="numeric"
+          pattern="[0-9]*"
+          enterKeyHint="done"
+          autoComplete="off"
+          value={mobileInput}
+          onChange={
+            handleMobileInput
+          }
+          onKeyDown={
+            handleInputKeyDown
+          }
+          disabled={gameOver}
+        />
+      </form>
 
       {/* RESULTADO */}
 
