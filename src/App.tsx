@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 
 import { CreateQuestion } from "./components/CreateQuestion";
@@ -124,7 +125,7 @@ function App() {
     };
   }, [gameOver, jaDigitou]);
 
-
+ 
   useEffect(() => {
     async function fetchQuestion() {
       try {
@@ -139,17 +140,43 @@ function App() {
         const isDevelopment =
           import.meta.env.DEV;
 
+        const apiUrl =
+          import.meta.env.VITE_API_URL;
+
+        if (!apiUrl) {
+          throw new Error(
+            "VITE_API_URL não foi definida."
+          );
+        }
+
         const url =
           isDevelopment && questionId
-            ? `http://localhost:3000/api/${questionId}`
-            : "http://localhost:3000/api/daily";
+            ? `${apiUrl}/api/${questionId}`
+            : `${apiUrl}/api/daily`;
+
+        console.log("Buscando API:", url);
 
         const response =
           await fetch(url);
 
         if (!response.ok) {
           throw new Error(
-            "Erro ao buscar o desafio."
+            `Erro ao buscar o desafio. Status: ${response.status}`
+          );
+        }
+
+        const contentType =
+          response.headers.get(
+            "content-type"
+          );
+
+        if (
+          !contentType?.includes(
+            "application/json"
+          )
+        ) {
+          throw new Error(
+            "A API não retornou JSON."
           );
         }
 
@@ -227,6 +254,7 @@ function App() {
     setCurrentPosition(0);
   }
 
+  
 
   useEffect(() => {
     function handleKeyDown(
@@ -236,7 +264,7 @@ function App() {
         return;
       }
 
-
+      
       if (/^\d$/.test(event.key)) {
         event.preventDefault();
 
@@ -265,7 +293,8 @@ function App() {
         return;
       }
 
-
+      
+      
       if (
         event.key === "ArrowLeft"
       ) {
@@ -282,7 +311,7 @@ function App() {
         return;
       }
 
-
+     
       if (
         event.key === "ArrowRight"
       ) {
@@ -341,7 +370,7 @@ function App() {
         return;
       }
 
-
+      
       if (
         event.key === "Enter"
       ) {
@@ -406,7 +435,6 @@ function App() {
 
       <div className="game-board">
 
-
         {guesses.map(
           (guess, index) => (
             <GuessRow
@@ -416,7 +444,6 @@ function App() {
             />
           )
         )}
-
 
         {!gameOver && (
           <div className="guess-row input-row">
@@ -465,7 +492,6 @@ function App() {
           </div>
         )}
 
-
         {Array.from(
           {
             length: Math.max(
@@ -497,7 +523,6 @@ function App() {
         )}
       </div>
 
-
       {gameOver && (
         <div className="game-result">
           {won ? (
@@ -525,3 +550,4 @@ function App() {
 }
 
 export default App;
+
