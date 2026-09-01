@@ -1,5 +1,4 @@
-
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { CreateQuestion } from "./components/CreateQuestion";
 import { GuessRow } from "./components/GuessRow";
@@ -33,9 +32,17 @@ function App() {
   const [placeholderText, setPlaceholderText] =
     useState("");
 
-  const [jaDigitou, setJaDigitou] =
-    useState(false);
+  const [jaDigitou, setJaDigitou] = useState(false);
 
+  const inputRef =
+    useRef<HTMLInputElement>(null);
+
+  const [mobileInput, setMobileInput] =
+    useState("");
+
+  // ========================================
+  // PLACEHOLDER ANIMADO
+  // ========================================
 
   useEffect(() => {
     if (gameOver || jaDigitou) {
@@ -125,7 +132,10 @@ function App() {
     };
   }, [gameOver, jaDigitou]);
 
- 
+  // ========================================
+  // BUSCAR PERGUNTA
+  // ========================================
+
   useEffect(() => {
     async function fetchQuestion() {
       try {
@@ -154,7 +164,10 @@ function App() {
             ? `${apiUrl}/api/${questionId}`
             : `${apiUrl}/api/daily`;
 
-        console.log("Buscando API:", url);
+        console.log(
+          "Buscando pergunta em:",
+          url
+        );
 
         const response =
           await fetch(url);
@@ -195,6 +208,9 @@ function App() {
     fetchQuestion();
   }, []);
 
+  // ========================================
+  // ENVIAR PALPITE
+  // ========================================
 
   function submitGuess() {
     if (gameOver) {
@@ -252,9 +268,48 @@ function App() {
     ]);
 
     setCurrentPosition(0);
+    setMobileInput("");
   }
 
-  
+  // ========================================
+  // INPUT DO CELULAR
+  // ========================================
+
+  function handleMobileInput(
+    event: React.ChangeEvent<HTMLInputElement>
+  ) {
+    const value = event.target.value;
+
+    const digit = value.slice(-1);
+
+    if (!/^\d$/.test(digit)) {
+      setMobileInput("");
+      return;
+    }
+
+    setDigits((prevDigits) => {
+      const nextDigits = [...prevDigits];
+
+      nextDigits[currentPosition] = digit;
+
+      return nextDigits;
+    });
+
+    setJaDigitou(true);
+    setPlaceholderText("");
+    setMobileInput("");
+
+    if (currentPosition < 3) {
+      setCurrentPosition(
+        (prevPosition) =>
+          prevPosition + 1
+      );
+    }
+  }
+
+  // ========================================
+  // TECLADO
+  // ========================================
 
   useEffect(() => {
     function handleKeyDown(
@@ -264,7 +319,10 @@ function App() {
         return;
       }
 
-      
+      // ======================================
+      // NÚMERO
+      // ======================================
+
       if (/^\d$/.test(event.key)) {
         event.preventDefault();
 
@@ -283,6 +341,8 @@ function App() {
         setJaDigitou(true);
         setPlaceholderText("");
 
+        setMobileInput("");
+
         if (currentPosition < 3) {
           setCurrentPosition(
             (prevPosition) =>
@@ -293,10 +353,13 @@ function App() {
         return;
       }
 
-      
-      
+      // ======================================
+      // SETA ESQUERDA
+      // ======================================
+
       if (
-        event.key === "ArrowLeft"
+        event.key ===
+        "ArrowLeft"
       ) {
         event.preventDefault();
 
@@ -311,9 +374,13 @@ function App() {
         return;
       }
 
-     
+      // ======================================
+      // SETA DIREITA
+      // ======================================
+
       if (
-        event.key === "ArrowRight"
+        event.key ===
+        "ArrowRight"
       ) {
         event.preventDefault();
 
@@ -328,6 +395,9 @@ function App() {
         return;
       }
 
+      // ======================================
+      // BACKSPACE
+      // ======================================
 
       if (
         event.key === "Backspace"
@@ -370,7 +440,10 @@ function App() {
         return;
       }
 
-      
+      // ======================================
+      // ENTER
+      // ======================================
+
       if (
         event.key === "Enter"
       ) {
@@ -399,6 +472,9 @@ function App() {
     digits,
   ]);
 
+  // ========================================
+  // LOADING
+  // ========================================
 
   if (!question) {
     return <p>Carregando...</p>;
@@ -407,6 +483,9 @@ function App() {
   const currentQuestion =
     question;
 
+  // ========================================
+  // RENDER
+  // ========================================
 
   return (
     <main>
@@ -434,6 +513,7 @@ function App() {
       />
 
       <div className="game-board">
+        {/* PALPITES */}
 
         {guesses.map(
           (guess, index) => (
@@ -444,6 +524,8 @@ function App() {
             />
           )
         )}
+
+        {/* INPUT ATUAL */}
 
         {!gameOver && (
           <div className="guess-row input-row">
@@ -476,11 +558,13 @@ function App() {
                         ? "selected-digit"
                         : ""
                     }`}
-                    onClick={() =>
+                    onClick={() => {
                       setCurrentPosition(
                         index
-                      )
-                    }
+                      );
+
+                      inputRef.current?.focus();
+                    }}
                   >
                     {digit ||
                       placeholderDigit ||
@@ -491,6 +575,8 @@ function App() {
             )}
           </div>
         )}
+
+        {/* CASAS VAZIAS */}
 
         {Array.from(
           {
@@ -523,6 +609,23 @@ function App() {
         )}
       </div>
 
+      {/* INPUT INVISÍVEL PARA CELULAR */}
+
+      <input
+        ref={inputRef}
+        className="hidden-input"
+        type="text"
+        inputMode="numeric"
+        pattern="[0-9]*"
+        autoComplete="off"
+        value={mobileInput}
+        onChange={
+          handleMobileInput
+        }
+      />
+
+      {/* RESULTADO */}
+
       {gameOver && (
         <div className="game-result">
           {won ? (
@@ -550,4 +653,3 @@ function App() {
 }
 
 export default App;
-

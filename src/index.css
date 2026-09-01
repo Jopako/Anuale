@@ -26,6 +26,9 @@ input {
   min-height: 100vh;
 }
 
+/* =========================
+   MAIN
+========================= */
 
 main {
   width: min(100%, 520px);
@@ -39,6 +42,9 @@ main {
   align-items: center;
 }
 
+/* =========================
+   HEADER
+========================= */
 
 .header {
   text-align: center;
@@ -60,6 +66,9 @@ main {
   font-weight: 400;
 }
 
+/* =========================
+   QUESTION
+========================= */
 
 .question {
   width: 100%;
@@ -101,7 +110,9 @@ main {
   font-weight: 400;
 }
 
-
+/* =========================
+   GAME BOARD
+========================= */
 
 .game-board {
   width: 100%;
@@ -118,11 +129,18 @@ main {
   gap: 4px;
 }
 
+/* =========================
+   INPUT ROW
+========================= */
 
 .input-row {
   cursor: pointer;
+  touch-action: manipulation;
 }
 
+/* =========================
+   INPUT DIGITS
+========================= */
 
 .input-digit {
   width: 90px;
@@ -155,6 +173,9 @@ main {
   transform: scale(1.02);
 }
 
+/* =========================
+   DIGIT SELECIONADO
+========================= */
 
 .selected-digit {
   border-color: #6f6f78;
@@ -165,7 +186,9 @@ main {
   box-shadow: 0 4px 0 #2e2e35;
 }
 
-
+/* =========================
+   HIDDEN INPUT
+========================= */
 
 .hidden-input {
   position: fixed;
@@ -179,7 +202,9 @@ main {
   opacity: 0;
 }
 
-
+/* =========================
+   EMPTY CELLS
+========================= */
 
 .empty-digit {
   width: 90px;
@@ -190,6 +215,10 @@ main {
 
   background: #0f0f12;
 }
+
+/* =========================
+   DIGIT FLIP
+========================= */
 
 .digit-wrapper {
   width: 90px;
@@ -249,7 +278,9 @@ main {
   color: #eaeaec;
 }
 
-
+/* =========================
+   RESULT COLORS
+========================= */
 
 .digit-back.correct {
   background: #1f4632;
@@ -268,7 +299,9 @@ main {
   color: #6a6a72;
 }
 
-
+/* =========================
+   ANIMATIONS
+========================= */
 
 @keyframes reveal-wrapper {
   0% {
@@ -294,7 +327,9 @@ main {
   }
 }
 
-
+/* =========================
+   GAME RESULT
+========================= */
 
 .game-result {
   width: 100%;
@@ -329,14 +364,18 @@ main {
   font-weight: 600;
 }
 
-
+/* =========================
+   PLACEHOLDER
+========================= */
 
 .placeholder-digit {
   color: #45454c;
   opacity: 0.55;
 }
 
-
+/* =========================
+   MOBILE
+========================= */
 
 @media (max-width: 480px) {
   main {
