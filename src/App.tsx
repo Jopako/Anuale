@@ -40,9 +40,7 @@ function App() {
   const inputRef =
     useRef<HTMLInputElement>(null);
 
-  // ========================================
-  // PLACEHOLDER ANIMADO
-  // ========================================
+
 
   useEffect(() => {
     if (gameOver || jaDigitou) {
@@ -132,9 +130,7 @@ function App() {
     };
   }, [gameOver, jaDigitou]);
 
-  // ========================================
-  // BUSCAR PERGUNTA
-  // ========================================
+ 
 
   useEffect(() => {
     async function fetchQuestion() {
@@ -208,9 +204,7 @@ function App() {
     fetchQuestion();
   }, []);
 
-  // ========================================
-  // ENVIAR PALPITE
-  // ========================================
+ 
 
   function submitGuess() {
     if (gameOver) {
@@ -271,9 +265,7 @@ function App() {
     setMobileInput("");
   }
 
-  // ========================================
-  // INPUT DO CELULAR
-  // ========================================
+
 
   function handleMobileInput(
     event: React.ChangeEvent<HTMLInputElement>
@@ -313,9 +305,7 @@ function App() {
     }
   }
 
-  // ========================================
-  // TECLADO DO CELULAR
-  // ========================================
+  
 
   function handleInputKeyDown(
     event: React.KeyboardEvent<HTMLInputElement>
@@ -324,7 +314,6 @@ function App() {
       return;
     }
 
-    // Enter / ação de enviar
     if (event.key === "Enter") {
       event.preventDefault();
 
@@ -333,7 +322,6 @@ function App() {
       return;
     }
 
-    // Backspace
     if (event.key === "Backspace") {
       event.preventDefault();
 
@@ -375,7 +363,6 @@ function App() {
       return;
     }
 
-    // Seta esquerda
     if (
       event.key === "ArrowLeft"
     ) {
@@ -392,7 +379,6 @@ function App() {
       return;
     }
 
-    // Seta direita
     if (
       event.key === "ArrowRight"
     ) {
@@ -408,9 +394,6 @@ function App() {
     }
   }
 
-  // ========================================
-  // TECLADO FÍSICO
-  // ========================================
 
   useEffect(() => {
     function handleKeyDown(
@@ -420,8 +403,6 @@ function App() {
         return;
       }
 
-      // Quando o input invisível estiver focado,
-      // ele próprio controla o teclado.
       if (
         event.target instanceof
         HTMLInputElement
@@ -429,7 +410,6 @@ function App() {
         return;
       }
 
-      // Números
       if (/^\d$/.test(event.key)) {
         event.preventDefault();
 
@@ -458,7 +438,6 @@ function App() {
         return;
       }
 
-      // Seta esquerda
       if (
         event.key === "ArrowLeft"
       ) {
@@ -475,7 +454,6 @@ function App() {
         return;
       }
 
-      // Seta direita
       if (
         event.key === "ArrowRight"
       ) {
@@ -492,7 +470,6 @@ function App() {
         return;
       }
 
-      // Backspace
       if (
         event.key === "Backspace"
       ) {
@@ -534,7 +511,6 @@ function App() {
         return;
       }
 
-      // Enter
       if (
         event.key === "Enter"
       ) {
@@ -561,20 +537,38 @@ function App() {
     digits,
   ]);
 
-  // ========================================
-  // LOADING
-  // ========================================
 
-  if (!question) {
-    return <p>Carregando...</p>;
-  }
+ if (!question) {
+  return (
+    <div className="loading-screen">
+      <div className="loading-container">
+        <div className="loading-logo">
+          ANUALE
+        </div>
+
+        <div className="loading-status">
+          <span className="loading-dot"></span>
+
+          <span>
+            INICIALIZANDO SERVIDORES
+          </span>
+        </div>
+
+        <div className="loading-bar">
+          <div className="loading-bar-progress"></div>
+        </div>
+
+        <p className="loading-message">
+          Conectando ao sistema...
+        </p>
+      </div>
+    </div>
+  );
+}
 
   const currentQuestion =
     question;
 
-  // ========================================
-  // RENDER
-  // ========================================
 
   return (
     <main>
@@ -602,7 +596,6 @@ function App() {
       />
 
       <div className="game-board">
-        {/* PALPITES */}
 
         {guesses.map(
           (guess, index) => (
@@ -614,7 +607,6 @@ function App() {
           )
         )}
 
-        {/* INPUT ATUAL */}
 
         {!gameOver && (
           <div className="guess-row input-row">

@@ -26,9 +26,7 @@ input {
   min-height: 100vh;
 }
 
-/* =========================
-   MAIN
-========================= */
+
 
 main {
   width: min(100%, 520px);
@@ -42,9 +40,7 @@ main {
   align-items: center;
 }
 
-/* =========================
-   HEADER
-========================= */
+
 
 .header {
   text-align: center;
@@ -66,9 +62,6 @@ main {
   font-weight: 400;
 }
 
-/* =========================
-   QUESTION
-========================= */
 
 .question {
   width: 100%;
@@ -109,11 +102,6 @@ main {
   line-height: 1.55;
   font-weight: 400;
 }
-
-/* =========================
-   GAME BOARD
-========================= */
-
 .game-board {
   width: 100%;
 
@@ -129,18 +117,13 @@ main {
   gap: 4px;
 }
 
-/* =========================
-   INPUT ROW
-========================= */
+
 
 .input-row {
   cursor: pointer;
   touch-action: manipulation;
 }
 
-/* =========================
-   INPUT DIGITS
-========================= */
 
 .input-digit {
   width: 90px;
@@ -173,9 +156,6 @@ main {
   transform: scale(1.02);
 }
 
-/* =========================
-   DIGIT SELECIONADO
-========================= */
 
 .selected-digit {
   border-color: #6f6f78;
@@ -186,9 +166,6 @@ main {
   box-shadow: 0 4px 0 #2e2e35;
 }
 
-/* =========================
-   HIDDEN INPUT
-========================= */
 
 .hidden-input {
   position: fixed;
@@ -202,9 +179,7 @@ main {
   opacity: 0;
 }
 
-/* =========================
-   EMPTY CELLS
-========================= */
+
 
 .empty-digit {
   width: 90px;
@@ -216,9 +191,7 @@ main {
   background: #0f0f12;
 }
 
-/* =========================
-   DIGIT FLIP
-========================= */
+
 
 .digit-wrapper {
   width: 90px;
@@ -278,9 +251,7 @@ main {
   color: #eaeaec;
 }
 
-/* =========================
-   RESULT COLORS
-========================= */
+
 
 .digit-back.correct {
   background: #1f4632;
@@ -298,10 +269,6 @@ main {
 
   color: #6a6a72;
 }
-
-/* =========================
-   ANIMATIONS
-========================= */
 
 @keyframes reveal-wrapper {
   0% {
@@ -327,9 +294,6 @@ main {
   }
 }
 
-/* =========================
-   GAME RESULT
-========================= */
 
 .game-result {
   width: 100%;
@@ -364,18 +328,13 @@ main {
   font-weight: 600;
 }
 
-/* =========================
-   PLACEHOLDER
-========================= */
+
 
 .placeholder-digit {
   color: #45454c;
   opacity: 0.55;
 }
 
-/* =========================
-   MOBILE
-========================= */
 
 @media (max-width: 480px) {
   main {
@@ -400,5 +359,137 @@ main {
 
   .guess-row {
     gap: 6px;
+  }
+}
+
+
+.loading-screen {
+  min-height: 100vh;
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #0a0a0c;
+  color: #eaeaec;
+
+  padding: 24px;
+}
+
+.loading-container {
+  width: min(100%, 420px);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  text-align: center;
+}
+
+.loading-logo {
+  margin-bottom: 28px;
+
+  font-size: 2rem;
+  font-weight: 700;
+
+  letter-spacing: -1px;
+
+  animation: loading-logo-pulse 2s ease-in-out infinite;
+}
+
+.loading-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  color: #8d8d96;
+
+  font-size: 0.72rem;
+  font-weight: 600;
+
+  letter-spacing: 1px;
+}
+
+.loading-dot {
+  width: 7px;
+  height: 7px;
+
+  border-radius: 50%;
+
+  background: #8d8d96;
+
+  animation: loading-dot-pulse 1s ease-in-out infinite;
+}
+
+.loading-bar {
+  width: 100%;
+  height: 3px;
+
+  margin-top: 22px;
+
+  overflow: hidden;
+
+  border-radius: 999px;
+
+  background: #1a1a1e;
+}
+
+.loading-bar-progress {
+  width: 35%;
+  height: 100%;
+
+  border-radius: inherit;
+
+  background: #6f6f78;
+
+  animation: loading-progress 1.6s ease-in-out infinite;
+}
+
+.loading-message {
+  margin-top: 14px;
+
+  color: #55555f;
+
+  font-size: 0.8rem;
+  font-weight: 400;
+}
+
+
+@keyframes loading-progress {
+  0% {
+    transform: translateX(-120%);
+  }
+
+  50% {
+    transform: translateX(180%);
+  }
+
+  100% {
+    transform: translateX(350%);
+  }
+}
+
+@keyframes loading-dot-pulse {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(0.85);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes loading-logo-pulse {
+  0%,
+  100% {
+    opacity: 0.7;
+  }
+
+  50% {
+    opacity: 1;
   }
 }
