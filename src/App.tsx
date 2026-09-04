@@ -1,4 +1,7 @@
 import { useEffect, useRef, useState } from "react";
+import AdminDashboard from "./admin/AdminDashboard";
+
+import Admin from "./admin/Admin";
 
 import { CreateQuestion } from "./components/CreateQuestion";
 import { GuessRow } from "./components/GuessRow";
@@ -8,7 +11,7 @@ import { checkDigits } from "./utils/checkDigits";
 import type { Guess } from "./types/guess";
 import type { Question } from "./types/question";
 
-function App() {
+function Game() {
   const [question, setQuestion] =
     useState<Question | null>(null);
 
@@ -39,8 +42,6 @@ function App() {
 
   const inputRef =
     useRef<HTMLInputElement>(null);
-
-
 
   useEffect(() => {
     if (gameOver || jaDigitou) {
@@ -130,8 +131,6 @@ function App() {
     };
   }, [gameOver, jaDigitou]);
 
- 
-
   useEffect(() => {
     async function fetchQuestion() {
       try {
@@ -204,8 +203,6 @@ function App() {
     fetchQuestion();
   }, []);
 
- 
-
   function submitGuess() {
     if (gameOver) {
       return;
@@ -265,8 +262,6 @@ function App() {
     setMobileInput("");
   }
 
-
-
   function handleMobileInput(
     event: React.ChangeEvent<HTMLInputElement>
   ) {
@@ -305,8 +300,6 @@ function App() {
     }
   }
 
-  
-
   function handleInputKeyDown(
     event: React.KeyboardEvent<HTMLInputElement>
   ) {
@@ -322,7 +315,9 @@ function App() {
       return;
     }
 
-    if (event.key === "Backspace") {
+    if (
+      event.key === "Backspace"
+    ) {
       event.preventDefault();
 
       setDigits((prevDigits) => {
@@ -393,7 +388,6 @@ function App() {
       );
     }
   }
-
 
   useEffect(() => {
     function handleKeyDown(
@@ -537,38 +531,36 @@ function App() {
     digits,
   ]);
 
+  if (!question) {
+    return (
+      <div className="loading-screen">
+        <div className="loading-container">
+          <div className="loading-logo">
+            ANUALE
+          </div>
 
- if (!question) {
-  return (
-    <div className="loading-screen">
-      <div className="loading-container">
-        <div className="loading-logo">
-          ANUALE
+          <div className="loading-status">
+            <span className="loading-dot"></span>
+
+            <span>
+              INICIALIZANDO SERVIDORES
+            </span>
+          </div>
+
+          <div className="loading-bar">
+            <div className="loading-bar-progress"></div>
+          </div>
+
+          <p className="loading-message">
+            Conectando ao sistema...
+          </p>
         </div>
-
-        <div className="loading-status">
-          <span className="loading-dot"></span>
-
-          <span>
-            INICIALIZANDO SERVIDORES
-          </span>
-        </div>
-
-        <div className="loading-bar">
-          <div className="loading-bar-progress"></div>
-        </div>
-
-        <p className="loading-message">
-          Conectando ao sistema...
-        </p>
       </div>
-    </div>
-  );
-}
+    );
+  }
 
   const currentQuestion =
     question;
-
 
   return (
     <main>
@@ -596,7 +588,6 @@ function App() {
       />
 
       <div className="game-board">
-
         {guesses.map(
           (guess, index) => (
             <GuessRow
@@ -606,7 +597,6 @@ function App() {
             />
           )
         )}
-
 
         {!gameOver && (
           <div className="guess-row input-row">
@@ -657,8 +647,6 @@ function App() {
           </div>
         )}
 
-        {/* CASAS VAZIAS */}
-
         {Array.from(
           {
             length: Math.max(
@@ -690,8 +678,6 @@ function App() {
         )}
       </div>
 
-      {/* INPUT INVISÍVEL PARA O CELULAR */}
-
       <form
         onSubmit={(event) => {
           event.preventDefault();
@@ -717,8 +703,6 @@ function App() {
         />
       </form>
 
-      {/* RESULTADO */}
-
       {gameOver && (
         <div className="game-result">
           {won ? (
@@ -743,6 +727,27 @@ function App() {
       )}
     </main>
   );
+}
+
+function App() {
+  const path =
+    window.location.pathname;
+
+  if (
+    path === "/anuale-admin" ||
+    path === "/anuale-admin/"
+  ) {
+    return <Admin />;
+  }
+
+  if (
+    path ===
+    "/anuale-admin/dashboard"
+  ) {
+    return <AdminDashboard />;
+  }
+
+  return <Game />;
 }
 
 export default App;

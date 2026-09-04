@@ -4,19 +4,24 @@ import Fastify from "fastify";
 import cors from "@fastify/cors";
 import swagger from "@fastify/swagger";
 import swaggerUi from "@fastify/swagger-ui";
+import jwt from "@fastify/jwt";
 
 import { db } from "./db/index.js";
+
 import { dailyRoutes } from "./routes/daily.js";
+import { adminRoutes } from "./routes/admin.js";
 
 const app = Fastify({
   logger: true,
 });
 
-
 app.register(cors, {
   origin: true,
 });
 
+app.register(jwt, {
+  secret: process.env.JWT_SECRET!,
+});
 
 app.register(swagger, {
   openapi: {
@@ -32,6 +37,16 @@ app.register(swagger, {
         url: "http://localhost:3000",
       },
     ],
+
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
+        },
+      },
+    },
   },
 });
 
@@ -41,13 +56,14 @@ app.register(swaggerUi, {
 
 
 app.register(dailyRoutes);
+app.register(adminRoutes);
 
 app.get("/", async () => {
   return {
-    message: "ANUALE API está funcionando!",
+    message:
+      "ANUALE API está funcionando!",
   };
 });
-
 
 async function start() {
   try {
@@ -55,7 +71,8 @@ async function start() {
 
     console.log("PostgreSQL conectado!");
 
-    const port = Number(process.env.PORT) || 3000;
+    const port =
+      Number(process.env.PORT) || 3000;
 
     await app.listen({
       port,
