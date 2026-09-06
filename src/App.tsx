@@ -32,6 +32,9 @@ function Game() {
 
   const [currentClue, setCurrentClue] = useState(0);
 
+  const [highestUnlockedClue, setHighestUnlockedClue] =
+    useState(0);
+
   const [placeholderText, setPlaceholderText] =
     useState("");
 
@@ -216,6 +219,12 @@ function Game() {
       return;
     }
 
+    const currentQuestion = question;
+
+    if (!currentQuestion) {
+      return;
+    }
+
     const ano = digits.join("");
 
     const result = checkDigits(
@@ -240,12 +249,18 @@ function Game() {
       setWon(true);
       setGameOver(true);
     } else if (
-      currentClue <
+      highestUnlockedClue <
       currentQuestion.clues.length - 1
     ) {
+      const nextClue =
+        highestUnlockedClue + 1;
+
+      setHighestUnlockedClue(
+        nextClue
+      );
+
       setCurrentClue(
-        (prevClue) =>
-          prevClue + 1
+        nextClue
       );
     } else {
       setGameOver(true);
@@ -260,6 +275,26 @@ function Game() {
 
     setCurrentPosition(0);
     setMobileInput("");
+  }
+
+  function goBackClue() {
+    setCurrentClue(
+      (prevClue) =>
+        Math.max(
+          0,
+          prevClue - 1
+        )
+    );
+  }
+
+  function goForwardClue() {
+    setCurrentClue(
+      (prevClue) =>
+        Math.min(
+          highestUnlockedClue,
+          prevClue + 1
+        )
+    );
   }
 
   function handleMobileInput(
@@ -562,170 +597,335 @@ function Game() {
   const currentQuestion =
     question;
 
+  const canGoBack =
+    currentClue > 0;
+
+  const canGoForward =
+    currentClue <
+    highestUnlockedClue;
+
+  const showClueNavigation =
+    guesses.length > 0;
+
   return (
-    <main>
-      <header className="header">
-        <h1>ANUALE</h1>
+    <>
+      <style>
+        {`
+          .floating-logo {
+            position: fixed;
+            top: 28px;
+            left: 28px;
+            width: 82px;
+            height: 82px;
+            object-fit: contain;
+            transform-style: preserve-3d;
+            animation: floatingLogoRotate 14s linear infinite;
+            opacity: 0.55;
+            pointer-events: none;
+            z-index: 10;
+            filter: drop-shadow(
+              0 0 14px rgba(255, 255, 255, 0.08)
+            );
+          }
 
-        <p>
-          Descubra em que ano isso
-          aconteceu.
-        </p>
-      </header>
+          @keyframes floatingLogoRotate {
+            0% {
+              transform:
+                perspective(700px)
+                rotateY(0deg)
+                translateY(0);
+            }
 
-      <CreateQuestion
-        clue={
-          currentQuestion.clues[
-            currentClue
-          ]
-        }
-        clueNumber={
-          currentClue + 1
-        }
-        totalClues={
-          currentQuestion.clues.length
-        }
-      />
+            25% {
+              transform:
+                perspective(700px)
+                rotateY(90deg)
+                translateY(-4px);
+            }
 
-      <div className="game-board">
-        {guesses.map(
-          (guess, index) => (
-            <GuessRow
-              key={index}
-              guess={guess.value}
-              results={guess.results}
-            />
-          )
-        )}
+            50% {
+              transform:
+                perspective(700px)
+                rotateY(180deg)
+                translateY(0);
+            }
 
-        {!gameOver && (
-          <div className="guess-row input-row">
-            {Array.from(
-              { length: 4 },
-              (_, index) => {
-                const digit =
-                  digits[index];
+            75% {
+              transform:
+                perspective(700px)
+                rotateY(270deg)
+                translateY(4px);
+            }
 
-                const placeholderDigit =
-                  placeholderText[
-                    index
-                  ];
+            100% {
+              transform:
+                perspective(700px)
+                rotateY(360deg)
+                translateY(0);
+            }
+          }
 
-                const isSelected =
-                  index ===
-                  currentPosition;
+          .clue-navigation {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin: 0 auto 14px;
+            height: 36px;
+          }
 
-                return (
-                  <div
-                    key={index}
-                    className={`input-digit ${
-                      digit
-                        ? "filled"
-                        : placeholderDigit
-                          ? "placeholder-digit"
-                          : ""
-                    } ${
-                      isSelected
-                        ? "selected-digit"
-                        : ""
-                    }`}
-                    onClick={() => {
-                      setCurrentPosition(
-                        index
-                      );
+          .clue-navigation-button {
+            width: 34px;
+            height: 34px;
+            padding: 0;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.025);
+            color: rgba(255, 255, 255, 0.82);
+            border-radius: 50%;
+            font-size: 17px;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition:
+              opacity 0.2s ease,
+              transform 0.2s ease,
+              background 0.2s ease,
+              border-color 0.2s ease;
+          }
 
-                      inputRef.current?.focus();
-                    }}
-                  >
-                    {digit ||
-                      placeholderDigit ||
-                      ""}
-                  </div>
-                );
-              }
-            )}
+          .clue-navigation-button:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.07);
+            border-color: rgba(255, 255, 255, 0.22);
+            transform: scale(1.06);
+          }
+
+          .clue-navigation-button:active:not(:disabled) {
+            transform: scale(0.96);
+          }
+
+          .clue-navigation-button:disabled {
+            opacity: 0.16;
+            cursor: default;
+          }
+
+          @media (max-width: 700px) {
+            .floating-logo {
+              top: 16px;
+              left: 12px;
+              width: 52px;
+              height: 52px;
+              opacity: 0.4;
+            }
+
+            .clue-navigation {
+              gap: 10px;
+              margin-bottom: 12px;
+            }
+
+            .clue-navigation-button {
+              width: 32px;
+              height: 32px;
+              font-size: 16px;
+            }
+          }
+        `}
+      </style>
+
+      <main>
+        <img
+          className="floating-logo"
+          src="/anuale-logo.png"
+          alt=""
+        />
+
+        <header className="header">
+          <h1>ANUALE</h1>
+
+          <p>
+            Descubra em que ano isso
+            aconteceu.
+          </p>
+        </header>
+
+        {showClueNavigation && (
+          <div className="clue-navigation">
+            <button
+              type="button"
+              className="clue-navigation-button"
+              onClick={goBackClue}
+              disabled={!canGoBack}
+              aria-label="Voltar para a dica anterior"
+            >
+              ←
+            </button>
+
+            <button
+              type="button"
+              className="clue-navigation-button"
+              onClick={goForwardClue}
+              disabled={!canGoForward}
+              aria-label="Avançar para a próxima dica"
+            >
+              →
+            </button>
           </div>
         )}
 
-        {Array.from(
-          {
-            length: Math.max(
-              0,
-              currentQuestion
-                .clues.length -
-                guesses.length -
-                (gameOver
-                  ? 0
-                  : 1)
-            ),
-          },
-          (_, index) => (
-            <div
-              key={`empty-${index}`}
-              className="guess-row"
-            >
-              {Array.from(
-                { length: 4 },
-                (_, digitIndex) => (
-                  <div
-                    key={digitIndex}
-                    className="empty-digit"
-                  />
-                )
-              )}
-            </div>
-          )
-        )}
-      </div>
-
-      <form
-        onSubmit={(event) => {
-          event.preventDefault();
-          submitGuess();
-        }}
-      >
-        <input
-          ref={inputRef}
-          className="hidden-input"
-          type="text"
-          inputMode="numeric"
-          pattern="[0-9]*"
-          enterKeyHint="enter"
-          autoComplete="off"
-          value={mobileInput}
-          onChange={
-            handleMobileInput
+        <CreateQuestion
+          clue={
+            currentQuestion.clues[
+              currentClue
+            ]
           }
-          onKeyDown={
-            handleInputKeyDown
+          clueNumber={
+            currentClue + 1
           }
-          disabled={gameOver}
+          totalClues={
+            currentQuestion.clues.length
+          }
         />
-      </form>
 
-      {gameOver && (
-        <div className="game-result">
-          {won ? (
-            <h2>
-              Você acertou!
-            </h2>
-          ) : (
-            <h2>
-              Fim de jogo
-            </h2>
+        <div className="game-board">
+          {guesses.map(
+            (guess, index) => (
+              <GuessRow
+                key={index}
+                guess={guess.value}
+                results={guess.results}
+              />
+            )
           )}
 
-          <p>
-            A resposta era{" "}
-            <strong>
-              {
-                currentQuestion.year
-              }
-            </strong>
-          </p>
+          {!gameOver && (
+            <div className="guess-row input-row">
+              {Array.from(
+                { length: 4 },
+                (_, index) => {
+                  const digit =
+                    digits[index];
+
+                  const placeholderDigit =
+                    placeholderText[
+                      index
+                    ];
+
+                  const isSelected =
+                    index ===
+                    currentPosition;
+
+                  return (
+                    <div
+                      key={index}
+                      className={`input-digit ${
+                        digit
+                          ? "filled"
+                          : placeholderDigit
+                            ? "placeholder-digit"
+                            : ""
+                      } ${
+                        isSelected
+                          ? "selected-digit"
+                          : ""
+                      }`}
+                      onClick={() => {
+                        setCurrentPosition(
+                          index
+                        );
+
+                        inputRef.current?.focus();
+                      }}
+                    >
+                      {digit ||
+                        placeholderDigit ||
+                        ""}
+                    </div>
+                  );
+                }
+              )}
+            </div>
+          )}
+
+          {Array.from(
+            {
+              length: Math.max(
+                0,
+                currentQuestion.clues.length -
+                  guesses.length -
+                  (gameOver
+                    ? 0
+                    : 1)
+              ),
+            },
+            (_, index) => (
+              <div
+                key={`empty-${index}`}
+                className="guess-row"
+              >
+                {Array.from(
+                  { length: 4 },
+                  (_, digitIndex) => (
+                    <div
+                      key={digitIndex}
+                      className="empty-digit"
+                    />
+                  )
+                )}
+              </div>
+            )
+          )}
         </div>
-      )}
-    </main>
+
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+            submitGuess();
+          }}
+        >
+          <input
+            ref={inputRef}
+            className="hidden-input"
+            type="text"
+            inputMode="numeric"
+            pattern="[0-9]*"
+            enterKeyHint="enter"
+            autoComplete="off"
+            value={mobileInput}
+            onChange={
+              handleMobileInput
+            }
+            onKeyDown={
+              handleInputKeyDown
+            }
+            disabled={gameOver}
+          />
+        </form>
+
+        {gameOver && (
+          <div className="game-result">
+            {won ? (
+              <h2>
+                Você acertou!
+              </h2>
+            ) : (
+              <h2>
+                Fim de jogo
+              </h2>
+            )}
+
+            <p>
+              A resposta era{" "}
+              <strong>
+                {
+                  currentQuestion.year
+                }
+              </strong>
+            </p>
+          </div>
+        )}
+      </main>
+    </>
   );
 }
 
