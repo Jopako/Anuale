@@ -16,6 +16,8 @@ function Game() {
   const [question, setQuestion] =
     useState<Question | null>(null);
 
+  const [idle, setIdle] = useState(false);
+
   const [digits, setDigits] = useState<string[]>([
     "",
     "",
@@ -51,7 +53,7 @@ function Game() {
     useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (gameOver || jaDigitou) {
+    if (gameOver || jaDigitou || idle) {
       return;
     }
 
@@ -136,7 +138,7 @@ function Game() {
     return () => {
       window.clearTimeout(timeoutId);
     };
-  }, [gameOver, jaDigitou]);
+  }, [gameOver, jaDigitou, idle]);
 
   useEffect(() => {
     async function fetchQuestion() {
@@ -168,6 +170,18 @@ function Game() {
 
         const response =
           await fetch(url);
+
+        if (response.status === 404) {
+          const errorData = await response.json();
+
+          if (
+            errorData.error ===
+            "Nenhum desafio encontrado para hoje."
+          ) {
+            setIdle(true);
+            return;
+          }
+        }
 
         if (!response.ok) {
           throw new Error(
@@ -338,7 +352,7 @@ function Game() {
   function handleInputKeyDown(
     event: React.KeyboardEvent<HTMLInputElement>
   ) {
-    if (gameOver) {
+    if (gameOver || idle) {
       return;
     }
 
@@ -428,7 +442,7 @@ function Game() {
     function handleKeyDown(
       event: KeyboardEvent
     ) {
-      if (gameOver) {
+      if (gameOver || idle) {
         return;
       }
 
@@ -564,7 +578,36 @@ function Game() {
     currentPosition,
     gameOver,
     digits,
+    idle,
   ]);
+
+  if (idle) {
+    return (
+      <div className="idle-screen">
+        <div className="idle-container">
+          <div className="idle-logo">
+            ANUALE
+          </div>
+
+          <div className="idle-icon">
+            🌙
+          </div>
+
+          <h1>
+            Nenhum desafio hoje
+          </h1>
+
+          <p>
+            O ANUALE está em pausa por
+            enquanto.
+            <br />
+            Volte amanhã para um novo
+            desafio.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   if (!question) {
     return (
@@ -841,7 +884,7 @@ function Game() {
             </div>
 
             <h2>
-              Oi, eu sou o João Paulo! 
+              Oi, eu sou o João Paulo 👋
             </h2>
 
             <p>
@@ -849,8 +892,11 @@ function Game() {
             </p>
 
             <p>
-              Criei este projeto para ter algo para jogar
-              enquanto estou em uma aula entendiante.
+              Criei este projeto para colocar
+              em prática minhas ideias de
+              desenvolvimento web e construir
+              uma experiência simples, divertida
+              e diferente.
             </p>
 
             <a

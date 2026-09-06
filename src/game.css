@@ -260,3 +260,68 @@
     width: 180px;
   }
 }
+.idle-screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.idle-container {
+  width: min(420px, 100%);
+  padding: 40px 28px;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.025);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+}
+
+.idle-logo {
+  margin-bottom: 36px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.idle-icon {
+  margin-bottom: 18px;
+  font-size: 42px;
+  animation: idleFloat 3s ease-in-out infinite;
+}
+
+.idle-container h1 {
+  margin: 0 0 12px;
+  color: white;
+  font-size: 24px;
+}
+
+.idle-container p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+@keyframes idleFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@media (max-width: 700px) {
+  .idle-container {
+    padding: 34px 22px;
+  }
+
+  .idle-container h1 {
+    font-size: 22px;
+  }
+}
