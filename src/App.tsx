@@ -884,7 +884,7 @@ function Game() {
             </div>
 
             <h2>
-              Oi, eu sou o João Paulo 👋
+              Oi, eu sou o João Paulo!
             </h2>
 
             <p>
@@ -892,11 +892,7 @@ function Game() {
             </p>
 
             <p>
-              Criei este projeto para colocar
-              em prática minhas ideias de
-              desenvolvimento web e construir
-              uma experiência simples, divertida
-              e diferente.
+              Criei este projeto para ter algo para jogar enquanto estou em uma aula entediante.
             </p>
 
             <a
