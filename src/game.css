@@ -1,0 +1,262 @@
+.floating-logo-button {
+  position: fixed;
+  top: 28px;
+  left: 28px;
+  width: 82px;
+  height: 82px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.floating-logo {
+  width: 82px;
+  height: 82px;
+  object-fit: contain;
+  transform-style: preserve-3d;
+  animation: floatingLogoRotate 14s linear infinite;
+  opacity: 0.55;
+  pointer-events: none;
+  filter: drop-shadow(
+    0 0 14px rgba(255, 255, 255, 0.08)
+  );
+}
+
+.floating-logo-button:hover .floating-logo {
+  opacity: 0.78;
+}
+
+@keyframes floatingLogoRotate {
+  0% {
+    transform:
+      perspective(700px)
+      rotateY(0deg)
+      translateY(0);
+  }
+
+  25% {
+    transform:
+      perspective(700px)
+      rotateY(90deg)
+      translateY(-4px);
+  }
+
+  50% {
+    transform:
+      perspective(700px)
+      rotateY(180deg)
+      translateY(0);
+  }
+
+  75% {
+    transform:
+      perspective(700px)
+      rotateY(270deg)
+      translateY(4px);
+  }
+
+  100% {
+    transform:
+      perspective(700px)
+      rotateY(360deg)
+      translateY(0);
+  }
+}
+
+.clue-navigation {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: 0 auto 14px;
+  height: 36px;
+}
+
+.clue-navigation-button {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.025);
+  color: rgba(255, 255, 255, 0.82);
+  border-radius: 50%;
+  font-size: 17px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.clue-navigation-button:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.22);
+  transform: scale(1.06);
+}
+
+.clue-navigation-button:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+.clue-navigation-button:disabled {
+  opacity: 0.16;
+  cursor: default;
+}
+
+.about-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 100;
+  animation: aboutFadeIn 0.2s ease;
+}
+
+.about-modal {
+  position: relative;
+  width: min(440px, 100%);
+  padding: 34px;
+  background: #111214;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  text-align: center;
+  box-shadow: 0 20px 80px rgba(0, 0, 0, 0.5);
+  animation: aboutModalIn 0.25s ease;
+}
+
+.about-close {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.about-close:hover {
+  color: white;
+}
+
+.about-logo {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 18px;
+}
+
+.about-logo img {
+  width: 210px;
+  height: auto;
+  object-fit: contain;
+}
+
+.about-modal h2 {
+  margin: 0 0 14px;
+  color: #fff;
+  font-size: 22px;
+}
+
+.about-modal p {
+  margin: 8px 0;
+  color: rgba(255, 255, 255, 0.62);
+  line-height: 1.6;
+  font-size: 14px;
+}
+
+.about-github {
+  display: inline-flex;
+  margin-top: 20px;
+  padding: 10px 18px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+  color: white;
+  text-decoration: none;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.about-github:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.24);
+}
+
+@keyframes aboutFadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes aboutModalIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (max-width: 700px) {
+  .floating-logo-button {
+    top: 16px;
+    left: 12px;
+    width: 52px;
+    height: 52px;
+  }
+
+  .floating-logo {
+    width: 52px;
+    height: 52px;
+    opacity: 0.4;
+  }
+
+  .floating-logo-button:hover .floating-logo {
+    opacity: 0.58;
+  }
+
+  .clue-navigation {
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .clue-navigation-button {
+    width: 32px;
+    height: 32px;
+    font-size: 16px;
+  }
+
+  .about-modal {
+    padding: 28px 22px;
+  }
+
+  .about-logo img {
+    width: 180px;
+  }
+}

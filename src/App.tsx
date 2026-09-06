@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import AdminDashboard from "./admin/AdminDashboard";
+import "./game.css";
 
+import AdminDashboard from "./admin/AdminDashboard";
 import Admin from "./admin/Admin";
 
 import { CreateQuestion } from "./components/CreateQuestion";
@@ -42,6 +43,9 @@ function Game() {
 
   const [mobileInput, setMobileInput] =
     useState("");
+
+  const [showAbout, setShowAbout] =
+    useState(false);
 
   const inputRef =
     useRef<HTMLInputElement>(null);
@@ -162,11 +166,6 @@ function Game() {
             ? `${apiUrl}/api/${questionId}`
             : `${apiUrl}/api/daily`;
 
-        console.log(
-          "Buscando pergunta em:",
-          url
-        );
-
         const response =
           await fetch(url);
 
@@ -219,7 +218,8 @@ function Game() {
       return;
     }
 
-    const currentQuestion = question;
+    const currentQuestion =
+      question;
 
     if (!currentQuestion) {
       return;
@@ -608,324 +608,263 @@ function Game() {
     guesses.length > 0;
 
   return (
-    <>
-      <style>
-        {`
-          .floating-logo {
-            position: fixed;
-            top: 28px;
-            left: 28px;
-            width: 82px;
-            height: 82px;
-            object-fit: contain;
-            transform-style: preserve-3d;
-            animation: floatingLogoRotate 14s linear infinite;
-            opacity: 0.55;
-            pointer-events: none;
-            z-index: 10;
-            filter: drop-shadow(
-              0 0 14px rgba(255, 255, 255, 0.08)
-            );
-          }
-
-          @keyframes floatingLogoRotate {
-            0% {
-              transform:
-                perspective(700px)
-                rotateY(0deg)
-                translateY(0);
-            }
-
-            25% {
-              transform:
-                perspective(700px)
-                rotateY(90deg)
-                translateY(-4px);
-            }
-
-            50% {
-              transform:
-                perspective(700px)
-                rotateY(180deg)
-                translateY(0);
-            }
-
-            75% {
-              transform:
-                perspective(700px)
-                rotateY(270deg)
-                translateY(4px);
-            }
-
-            100% {
-              transform:
-                perspective(700px)
-                rotateY(360deg)
-                translateY(0);
-            }
-          }
-
-          .clue-navigation {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            margin: 0 auto 14px;
-            height: 36px;
-          }
-
-          .clue-navigation-button {
-            width: 34px;
-            height: 34px;
-            padding: 0;
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            background: rgba(255, 255, 255, 0.025);
-            color: rgba(255, 255, 255, 0.82);
-            border-radius: 50%;
-            font-size: 17px;
-            line-height: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition:
-              opacity 0.2s ease,
-              transform 0.2s ease,
-              background 0.2s ease,
-              border-color 0.2s ease;
-          }
-
-          .clue-navigation-button:hover:not(:disabled) {
-            background: rgba(255, 255, 255, 0.07);
-            border-color: rgba(255, 255, 255, 0.22);
-            transform: scale(1.06);
-          }
-
-          .clue-navigation-button:active:not(:disabled) {
-            transform: scale(0.96);
-          }
-
-          .clue-navigation-button:disabled {
-            opacity: 0.16;
-            cursor: default;
-          }
-
-          @media (max-width: 700px) {
-            .floating-logo {
-              top: 16px;
-              left: 12px;
-              width: 52px;
-              height: 52px;
-              opacity: 0.4;
-            }
-
-            .clue-navigation {
-              gap: 10px;
-              margin-bottom: 12px;
-            }
-
-            .clue-navigation-button {
-              width: 32px;
-              height: 32px;
-              font-size: 16px;
-            }
-          }
-        `}
-      </style>
-
-      <main>
+    <main>
+      <button
+        type="button"
+        className="floating-logo-button"
+        onClick={() =>
+          setShowAbout(true)
+        }
+        aria-label="Sobre o autor"
+      >
         <img
           className="floating-logo"
           src="/anuale-logo.png"
           alt=""
         />
+      </button>
 
-        <header className="header">
-          <h1>ANUALE</h1>
+      <header className="header">
+        <h1>ANUALE</h1>
 
-          <p>
-            Descubra em que ano isso
-            aconteceu.
-          </p>
-        </header>
+        <p>
+          Descubra em que ano isso
+          aconteceu.
+        </p>
+      </header>
 
-        {showClueNavigation && (
-          <div className="clue-navigation">
-            <button
-              type="button"
-              className="clue-navigation-button"
-              onClick={goBackClue}
-              disabled={!canGoBack}
-              aria-label="Voltar para a dica anterior"
-            >
-              ←
-            </button>
+      {showClueNavigation && (
+        <div className="clue-navigation">
+          <button
+            type="button"
+            className="clue-navigation-button"
+            onClick={goBackClue}
+            disabled={!canGoBack}
+            aria-label="Voltar para a dica anterior"
+          >
+            ←
+          </button>
 
-            <button
-              type="button"
-              className="clue-navigation-button"
-              onClick={goForwardClue}
-              disabled={!canGoForward}
-              aria-label="Avançar para a próxima dica"
-            >
-              →
-            </button>
+          <button
+            type="button"
+            className="clue-navigation-button"
+            onClick={goForwardClue}
+            disabled={!canGoForward}
+            aria-label="Avançar para a próxima dica"
+          >
+            →
+          </button>
+        </div>
+      )}
+
+      <CreateQuestion
+        clue={
+          currentQuestion.clues[
+            currentClue
+          ]
+        }
+        clueNumber={
+          currentClue + 1
+        }
+        totalClues={
+          currentQuestion.clues.length
+        }
+      />
+
+      <div className="game-board">
+        {guesses.map(
+          (guess, index) => (
+            <GuessRow
+              key={index}
+              guess={guess.value}
+              results={guess.results}
+            />
+          )
+        )}
+
+        {!gameOver && (
+          <div className="guess-row input-row">
+            {Array.from(
+              { length: 4 },
+              (_, index) => {
+                const digit =
+                  digits[index];
+
+                const placeholderDigit =
+                  placeholderText[
+                    index
+                  ];
+
+                const isSelected =
+                  index ===
+                  currentPosition;
+
+                return (
+                  <div
+                    key={index}
+                    className={`input-digit ${
+                      digit
+                        ? "filled"
+                        : placeholderDigit
+                          ? "placeholder-digit"
+                          : ""
+                    } ${
+                      isSelected
+                        ? "selected-digit"
+                        : ""
+                    }`}
+                    onClick={() => {
+                      setCurrentPosition(
+                        index
+                      );
+
+                      inputRef.current?.focus();
+                    }}
+                  >
+                    {digit ||
+                      placeholderDigit ||
+                      ""}
+                  </div>
+                );
+              }
+            )}
           </div>
         )}
 
-        <CreateQuestion
-          clue={
-            currentQuestion.clues[
-              currentClue
-            ]
-          }
-          clueNumber={
-            currentClue + 1
-          }
-          totalClues={
-            currentQuestion.clues.length
-          }
-        />
-
-        <div className="game-board">
-          {guesses.map(
-            (guess, index) => (
-              <GuessRow
-                key={index}
-                guess={guess.value}
-                results={guess.results}
-              />
-            )
-          )}
-
-          {!gameOver && (
-            <div className="guess-row input-row">
+        {Array.from(
+          {
+            length: Math.max(
+              0,
+              currentQuestion.clues.length -
+                guesses.length -
+                (gameOver
+                  ? 0
+                  : 1)
+            ),
+          },
+          (_, index) => (
+            <div
+              key={`empty-${index}`}
+              className="guess-row"
+            >
               {Array.from(
                 { length: 4 },
-                (_, index) => {
-                  const digit =
-                    digits[index];
-
-                  const placeholderDigit =
-                    placeholderText[
-                      index
-                    ];
-
-                  const isSelected =
-                    index ===
-                    currentPosition;
-
-                  return (
-                    <div
-                      key={index}
-                      className={`input-digit ${
-                        digit
-                          ? "filled"
-                          : placeholderDigit
-                            ? "placeholder-digit"
-                            : ""
-                      } ${
-                        isSelected
-                          ? "selected-digit"
-                          : ""
-                      }`}
-                      onClick={() => {
-                        setCurrentPosition(
-                          index
-                        );
-
-                        inputRef.current?.focus();
-                      }}
-                    >
-                      {digit ||
-                        placeholderDigit ||
-                        ""}
-                    </div>
-                  );
-                }
+                (_, digitIndex) => (
+                  <div
+                    key={digitIndex}
+                    className="empty-digit"
+                  />
+                )
               )}
             </div>
+          )
+        )}
+      </div>
+
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          submitGuess();
+        }}
+      >
+        <input
+          ref={inputRef}
+          className="hidden-input"
+          type="text"
+          inputMode="numeric"
+          pattern="[0-9]*"
+          enterKeyHint="enter"
+          autoComplete="off"
+          value={mobileInput}
+          onChange={
+            handleMobileInput
+          }
+          onKeyDown={
+            handleInputKeyDown
+          }
+          disabled={gameOver}
+        />
+      </form>
+
+      {gameOver && (
+        <div className="game-result">
+          {won ? (
+            <h2>
+              Você acertou!
+            </h2>
+          ) : (
+            <h2>
+              Fim de jogo
+            </h2>
           )}
 
-          {Array.from(
-            {
-              length: Math.max(
-                0,
-                currentQuestion.clues.length -
-                  guesses.length -
-                  (gameOver
-                    ? 0
-                    : 1)
-              ),
-            },
-            (_, index) => (
-              <div
-                key={`empty-${index}`}
-                className="guess-row"
-              >
-                {Array.from(
-                  { length: 4 },
-                  (_, digitIndex) => (
-                    <div
-                      key={digitIndex}
-                      className="empty-digit"
-                    />
-                  )
-                )}
-              </div>
-            )
-          )}
+          <p>
+            A resposta era{" "}
+            <strong>
+              {
+                currentQuestion.year
+              }
+            </strong>
+          </p>
         </div>
+      )}
 
-        <form
-          onSubmit={(event) => {
-            event.preventDefault();
-            submitGuess();
-          }}
+      {showAbout && (
+        <div
+          className="about-overlay"
+          onClick={() =>
+            setShowAbout(false)
+          }
         >
-          <input
-            ref={inputRef}
-            className="hidden-input"
-            type="text"
-            inputMode="numeric"
-            pattern="[0-9]*"
-            enterKeyHint="enter"
-            autoComplete="off"
-            value={mobileInput}
-            onChange={
-              handleMobileInput
+          <div
+            className="about-modal"
+            onClick={(event) =>
+              event.stopPropagation()
             }
-            onKeyDown={
-              handleInputKeyDown
-            }
-            disabled={gameOver}
-          />
-        </form>
+          >
+            <button
+              type="button"
+              className="about-close"
+              onClick={() =>
+                setShowAbout(false)
+              }
+              aria-label="Fechar"
+            >
+              ×
+            </button>
 
-        {gameOver && (
-          <div className="game-result">
-            {won ? (
-              <h2>
-                Você acertou!
-              </h2>
-            ) : (
-              <h2>
-                Fim de jogo
-              </h2>
-            )}
+            <div className="about-logo">
+              <img
+                src="/anuale-logo.png"
+                alt="ANUALE"
+              />
+            </div>
+
+            <h2>
+              Oi, eu sou o João Paulo! 
+            </h2>
 
             <p>
-              A resposta era{" "}
-              <strong>
-                {
-                  currentQuestion.year
-                }
-              </strong>
+              Eu sou o criador do ANUALE.
             </p>
+
+            <p>
+              Criei este projeto para ter algo para jogar
+              enquanto estou em uma aula entendiante.
+            </p>
+
+            <a
+              href="https://github.com/Jopako"
+              target="_blank"
+              rel="noreferrer"
+              className="about-github"
+            >
+              GitHub
+            </a>
           </div>
-        )}
-      </main>
-    </>
+        </div>
+      )}
+    </main>
   );
 }
 
